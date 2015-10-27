@@ -4,3 +4,4 @@ function Patient = addNewPatient()
 
 P = makePatientStruct();
 Patient = StructDlg(P, 'Patient Information');
+Patient.Recordings = [];
