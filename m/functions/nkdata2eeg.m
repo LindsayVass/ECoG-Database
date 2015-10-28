@@ -2,8 +2,8 @@ function EEG = nkdata2eeg(nkdata, filepath)
 
 % Convert Houston data from nkdata structure to EEGLAB structure. No
 % changes are made to the data itself (i.e., no referencing).
-% >> EEG = importNkData(nkdata, filepath)
 %
+% >> EEG = importNkData(nkdata, filepath)
 % Input:
 %   nkdata: output struct from Houston; contains the following fields:
 %       pt_code
@@ -32,11 +32,6 @@ function EEG = nkdata2eeg(nkdata, filepath)
 % Output:
 %   EEG: EEGLAB struct
 
-% handle this before input to function
-% addpath(genpath('/Users/Lindsay/Documents/MATLAB/eeglab13_4_4b'))
-% inputMat = '/Users/Lindsay/Documents/ECoG Database/Sample Data/TS071/ECoG_data/Retrieval_data_uncorr/ts071_EkstromRetrievalUncorr_sEEG.mat';
-% load(inputMat);
-
 % make an empty EEGLAB struct
 EEG = eeg_emptyset();
 
@@ -56,7 +51,10 @@ EEG.srate  = nkdata.sampHz;
 EEG.start_time = nkdata.start_time;
 
 % insert electrode-wise info
+multiWaitbar('Inputting electrode data', 0);
 for thisElec = 1:EEG.nbchan
+    multiWaitbar('Inputting electrode data', thisElec / EEG.nbchan);
+    
     EEG.data(thisElec, :)         = double(nkdata.eeg(thisElec, :));
     EEG.chanlocs(thisElec).labels = strtrim(nkdata.ch_names(thisElec, :));
     EEG.chanlocs(thisElec).hemisphere = [];
@@ -67,3 +65,4 @@ for thisElec = 1:EEG.nbchan
     EEG.chanlocs(thisElec).Z = [];
     EEG.chanlocs(thisElec).type = [];
 end
+multiWaitbar('Inputting electrode data', 'Close');
