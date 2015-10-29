@@ -17,9 +17,15 @@ pop_saveset(EEG, [subjDir 'PreProcessing/raw.set']);
 
 %% check for electrodes with gross artifacts
 EEG = pop_loadset([subjDir 'PreProcess/raw.set']);
-visedConfigPath = '/Users/Lindsay/Documents/ECoG Database/vised_config.mat';
-load(visedConfigPath);
 eeglab redraw;
 
-EEG = markBadChannels(EEG, VISED_CONFIG);
+% if you have your own customized VISED_CONFIG, then load it here
+% visedConfigPath = '/Users/Lindsay/Documents/ECoG Database/vised_config.mat';
+% load(visedConfigPath);
+% EEG = markBadChannels(EEG, VISED_CONFIG);
 
+% otherwise, if you don't have a config file
+EEG = markBadChannels(EEG);
+
+% create an easy-to-read structure of marked channels
+chanList = listBadChannels(EEG);
