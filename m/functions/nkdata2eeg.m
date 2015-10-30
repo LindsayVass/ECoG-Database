@@ -50,8 +50,11 @@ EEG.nbchan = nkdata.nchannels;
 EEG.srate  = nkdata.sampHz;
 EEG.start_time = nkdata.start_time;
 EEG.chan_history.date = datestr(now);
-EEG.chan_history.good_chans = 1:1:EEG.nbchan;
-EEG.chan_history.bad_chans = [];
+EEG.chan_history.good_chans.electrode_name = [];
+EEG.chan_history.good_chans.electrode_ind = [];
+EEG.chan_history.bad_chans.label = [];
+EEG.chan_history.bad_chans.electrode_name = [];
+EEG.chan_history.bad_chans.electrode_ind = [];
 
 % insert electrode-wise info
 multiWaitbar('Inputting electrode data', 0);
@@ -69,3 +72,9 @@ for thisElec = 1:EEG.nbchan
     EEG.chanlocs(thisElec).type = [];
 end
 multiWaitbar('Inputting electrode data', 'Close');
+
+% populate good_chans
+for thisLabel = 1:EEG.nbchan
+    EEG.chan_history.good_chans(thisLabel).electrode_ind = thisLabel;
+    EEG.chan_history.good_chans(thisLabel).electrode_name = {EEG.chanlocs(thisLabel).labels}';
+end
