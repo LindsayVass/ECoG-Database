@@ -1,4 +1,4 @@
-function verID = saveEEG(EEG, outputDir, subjID, resID, verID)
+function [verID, filePath] = saveEEG(EEG, outputDir, subjID, resID, verID)
 % Save EEG file using a filename that indicates the patient, researcher,
 % and version of the file.
 %
@@ -13,6 +13,7 @@ function verID = saveEEG(EEG, outputDir, subjID, resID, verID)
 %
 % Output:
 %   verID: incremented version number
+%   filePath: path to the saved EEG dataset
 
 %% format file name
 
@@ -21,8 +22,8 @@ if outputDir(end) ~= '/'
     outputDir = [outputDir '/'];
 end
 
-fileName = [outputDir subjID '_' resID '_' num2str(verID, '%03d') '.set'];
+filePath = [outputDir subjID '_' resID '_' num2str(verID, '%03d') '.set'];
 
-pop_saveset(EEG, fileName);
+pop_saveset(EEG, filePath);
 
 verID = verID + 1;
