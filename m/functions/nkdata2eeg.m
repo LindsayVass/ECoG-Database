@@ -49,6 +49,9 @@ EEG.task = nkdata.task;
 EEG.nbchan = nkdata.nchannels;
 EEG.srate  = nkdata.sampHz;
 EEG.start_time = nkdata.start_time;
+EEG.chan_history.date = datestr(now);
+EEG.chan_history.good_chans = 1:1:EEG.nbchan;
+EEG.chan_history.bad_chans = [];
 
 % insert electrode-wise info
 multiWaitbar('Inputting electrode data', 0);
