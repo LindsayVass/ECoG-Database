@@ -22,6 +22,16 @@ if outputDir(end) ~= '/'
     outputDir = [outputDir '/'];
 end
 
+% check that verID is an integer
+if isnumeric(verID) == 0
+    error('verID must be an integer');
+end
+
+% check that outputDir exists
+if ~exist(outputDir, 'dir')
+    error('Output directory (outputDir) does not exist.')
+end
+
 filePath = [outputDir subjID '_' resID '_' num2str(verID, '%03d') '.set'];
 
 % check whether a file exists by this name. if so, increment verID
