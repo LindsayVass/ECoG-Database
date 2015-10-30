@@ -24,3 +24,5 @@ end
 fileName = [outputDir subjID '_' resID '_' num2str(verID, '%03d') '.set'];
 
 pop_saveset(EEG, fileName);
+
+verID = verID + 1;
