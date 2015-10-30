@@ -24,6 +24,13 @@ end
 
 filePath = [outputDir subjID '_' resID '_' num2str(verID, '%03d') '.set'];
 
+% check whether a file exists by this name. if so, increment verID
+while exist(filePath, 'file')
+    warning('A file exists with this name already. Incrementing the version number before saving.');
+    verID = verID + 1;
+    filePath = [outputDir subjID '_' resID '_' num2str(verID, '%03d') '.set'];
+end
+
 pop_saveset(EEG, filePath);
 
 verID = verID + 1;
