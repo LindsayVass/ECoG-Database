@@ -1,20 +1,23 @@
-function EEG = markBadChannels(EEG, VISED_CONFIG)
+function [EEG, chanVerID] = markBadChannels(EEG, chanVerID, VISED_CONFIG)
 
 % Mark bad channels that exhibit gross signal abnormalities as well as the
 % marker channel for data synchronization. These flags are stored in the
 % marks structure (EEG.marks.chan_info).
 %
-% >> EEG = markBadChannels(EEG)
+% >> [EEG, chanVerID] = markBadChannels(EEG, chanVerID, VISED_CONFIG)
 %
-% Input:
+% Inputs:
 %   EEG: EEGLAB struct
+%   chanVerID: integer indicating the current version of channel inclusion
 %
 % Optional Input:
-%   VISED_CONFIG: configuration structure for vised_marks plugin
+%   VISED_CONFIG: configuration structure for vised_marks plugin; must be
+%       named 'VISED_CONFIG'
 %
-% Output:
+% Outputs:
 %   EEG: EEGLAB struct containing an updated marks structure with flags for
 %       bad channels and the marker channel
+%   chanVerID: incremented channel version ID
 
 eeglab redraw;
 
@@ -24,6 +27,11 @@ if ~exist('VISED_CONFIG', 'var')
     tbInd = strfind(curPath, 'ECoG Database/');
     visedPath = [curPath(1:tbInd + 13) 'config/vised_config_marker_select.mat'];
     load(visedPath);
+end
+
+% check that IDs are integers
+if isnumeric(chanVerID) == 0
+    error('chanVerID must be an integer');
 end
 
 % initialize marks structure
@@ -39,3 +47,5 @@ message = ['In the EEGLAB window, select Edit --> Visually edit in scroll plot. 
     'To identify the marker channel, hold your cursor over the channel and press the M key. To de-select the channel, press M again. \n\n' ...
     'When complete, press Update EEG Structure button at bottom right.'];
 h = msgbox(sprintf(message));
+
+chanVerID = chanVerID + 1;
