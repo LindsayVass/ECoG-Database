@@ -19,6 +19,6 @@ function id = makeIdStruct(patient, researcher)
 id.patient = patient;
 id.researcher = researcher;
 id.channels = 0;
-id.rereference = 'common';
+id.rereference = 'Common';
 id.artifacts = 0;
 id.epoch = '';
