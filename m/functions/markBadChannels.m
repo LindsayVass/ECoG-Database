@@ -56,7 +56,9 @@ if isfield(EEG, 'marks') == 0
 end
 
 % add marker channel label
-EEG.marks = marks_add_label(EEG.marks, 'chan_info', {'marker', [1 0 0], [1 0 0], 1, zeros(EEG.nbchan, 1)});
+if sum(strcmpi({EEG.marks.chan_info.label}, 'marker')) == 0
+    EEG.marks = marks_add_label(EEG.marks, 'chan_info', {'marker', [1 0 0], [1 0 0], 1, zeros(EEG.nbchan, 1)});
+end
 
 message = ['In the EEGLAB window, select Edit --> Visually edit in scroll plot. When the pop-up configuration window appears, select OK. \n\n' ...
     'Right click on any channels that exhibit gross signal abnormalities. Right click again to de-select a channel. \n\n' ...
