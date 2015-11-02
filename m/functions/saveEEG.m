@@ -1,29 +1,23 @@
-function [filePath] = saveEEG(EEG, outputDir, subjID, resID, chanVerID, refVerID, artVerID, epochVerID)
+function [filePath] = saveEEG(EEG, outputDir, id)
 % Save EEG file using a filename that indicates the patient, researcher,
 % and version of the file. The version of the file is indicated with
 % respect to channel inclusion, referencing scheme, artifact exclusion, and
 % epoching scheme.
 %
-% Ex: TS071_LV_C01_R02_A03_E01.set
+% Ex: TS071_LV_C01_Ref_Common_A03_Ep_Cue.set
 %   - Patient = TS071
 %   - Researcher = LV
 %   - Channels = version 01
-%   - Referencing = version 02
+%   - Referencing = 'Common'
 %   - Artifacts = version 03
-%   - Epochs = version 01
+%   - Epochs = 'Cue'
 %
-% >> [filePath] = saveEEG(EEG, outputDir, subjID, resID, chanVerID, refVerID, artVerID, epochVerID)
+% >> [filePath] = saveEEG(EEG, outputDir, id)
 %
 % Inputs:
 %   EEG: EEGLAB structure to be saved
 %   outputDir: path to the output directory to save the data to
-%   subjID: string indicating the patient ID (e.g., 'TS071')
-%   resID: string indicating the researcher (e.g., 'LV')
-%   chanVerID: integer indicating the current version of channel
-%       inclusion/exclusion scheme
-%   refVerID: integer indicating the current version of referencing scheme
-%   artVerID: integer indicating the current version of artifact exclusion
-%   epochVerID: integer indicating the current version of epoching
+%   id: structure created by makeIdStruct.m
 %
 % Output:
 %   filePath: path to the saved EEG dataset
@@ -36,29 +30,39 @@ if outputDir(end) ~= '/'
 end
 
 % check that IDs are integers
-if isnumeric(chanVerID) == 0
-    error('chanVerID must be an integer');
+if isnumeric(id.channels) == 0
+    error('id.channels must be an integer');
 end
-if isnumeric(refVerID) == 0
-    error('refVerID must be an integer');
+if isnumeric(id.artifacts) == 0
+    error('id.artifacts must be an integer');
 end
-if isnumeric(artVerID) == 0
-    error('artVerID must be an integer');
+if ischar(id.patient) == 0
+    error('id.patient must be a string');
 end
-if isnumeric(epochVerID) == 0
-    error('epochVerID must be an integer');
+if ischar(id.researcher == 0)
+    error('id.researcher must be a string');
+end
+if ischar(id.rereference == 0)
+    error('id.rereference must be a string');
+end
+if ischar(id.epoch == 0)
+    error('id.epoch must be a string');
 end
 
 % check that outputDir exists
 if ~exist(outputDir, 'dir')
-    error('Output directory (outputDir) does not exist.')
+    error('Output directory does not exist.')
 end
 
-filePath = [outputDir subjID '_' resID '_C' num2str(chanVerID, '%02d') '_R' num2str(refVerID, '%02d') '_A' num2str(artVerID, '%02d'), '_E' num2str(epochVerID, '%02d') '.set'];
-
+if strcmpi(id.epoch, '') == 1
+    filePath = [outputDir id.patient '_' id.researcher '_C' num2str(id.channels, '%02d') '_Ref_' id.rereference '_A' num2str(id.artifacts, '%02d') '.set'];
+else
+    filePath = [outputDir id.patient '_' id.researcher '_C' num2str(id.channels, '%02d') '_Ref_' id.rereference '_A' num2str(id.artifacts, '%02d') '_Ep_' id.epoch '.set'];
+end
+    
 % check whether a file exists by this name
 if exist(filePath, 'file')
-    error('A file exists with this name already. Check your version IDs.');
+    error('A file exists with this name already. Check your id structure.');
 end
 
 pop_saveset(EEG, filePath);
