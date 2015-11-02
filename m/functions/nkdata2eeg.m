@@ -57,6 +57,12 @@ EEG.chan_history.bad_chans.label = [];
 EEG.chan_history.bad_chans.electrode_name = [];
 EEG.chan_history.bad_chans.electrode_ind = [];
 
+EEG.ref.refVerID = 0;
+EEG.ref.date = datestr(now);
+EEG.ref.chan.electrode_name = [];
+EEG.ref.chan.electrode_ind = [];
+EEG.ref.chan.ref_ind = [];
+
 % insert electrode-wise info
 multiWaitbar('Inputting electrode data', 0);
 for thisElec = 1:EEG.nbchan
