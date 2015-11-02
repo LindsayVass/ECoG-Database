@@ -1,37 +1,53 @@
-function [EEG, chanVerID] = markBadChannels(EEG, chanVerID, VISED_CONFIG)
+function [EEG, varargout] = markBadChannels(EEG, varargin)
 
 % Mark bad channels that exhibit gross signal abnormalities as well as the
 % marker channel for data synchronization. These flags are stored in the
 % marks structure (EEG.marks.chan_info).
 %
-% >> [EEG, chanVerID] = markBadChannels(EEG, chanVerID, VISED_CONFIG)
+% Minimal example:
+% >> [EEG] = markBadChannels(EEG)
+%
+% Maximal example:
+% >> [EEG, id] = markBadChannels(EEG, id, VISED_CONFIG)
 %
 % Inputs:
 %   EEG: EEGLAB struct
-%   chanVerID: integer indicating the current version of channel inclusion
 %
-% Optional Input:
+% Optional Inputs:
+%   id: structure created by makeIdStruct.m
 %   VISED_CONFIG: configuration structure for vised_marks plugin; must be
 %       named 'VISED_CONFIG'
 %
-% Outputs:
+% Output:
 %   EEG: EEGLAB struct containing an updated marks structure with flags for
 %       bad channels and the marker channel
-%   chanVerID: incremented channel version ID
+%
+% Optional Output:
+%   id: updated id structure
 
 eeglab redraw;
 
-% load VISED_CONFIG if not specified
-if ~exist('VISED_CONFIG', 'var')
+if nargin == 3
+    VISED_CONFIG = varargin{2};
+else
+    if nargin == 2
+        id = varargin{1};
+    end
+    % load default VISED_CONFIG
     curPath = which('markBadChannels.m');
     tbInd = strfind(curPath, 'ECoG Database/');
     visedPath = [curPath(1:tbInd + 13) 'config/vised_config_marker_select.mat'];
     load(visedPath);
 end
 
-% check that IDs are integers
-if isnumeric(chanVerID) == 0
-    error('chanVerID must be an integer');
+% check that id.channels is an integer
+if exist('id', 'var')
+    if isnumeric(id.channels) == 0
+        error('id.channels must be an integer');
+    end
+    % increment channel version
+    id.channels = id.channels + 1;
+    varargout{1} = id;
 end
 
 % initialize marks structure
@@ -48,4 +64,3 @@ message = ['In the EEGLAB window, select Edit --> Visually edit in scroll plot. 
     'When complete, press Update EEG Structure button at bottom right.'];
 h = msgbox(sprintf(message));
 
-chanVerID = chanVerID + 1;
