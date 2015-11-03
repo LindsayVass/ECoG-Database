@@ -45,9 +45,6 @@ if exist('id', 'var')
     if isnumeric(id.channels) == 0
         error('id.channels must be an integer');
     end
-    % increment channel version
-    id.channels = id.channels + 1;
-    varargout{1} = id;
 end
 
 % initialize marks structure
@@ -71,8 +68,13 @@ h = msgbox(sprintf(message), 'Mark Bad Channels', 'help');
 % after done marking channels...
 waitfor(h);
 
-% if anything changed 
+% if anything changed
 if isequal(origMarks, EEG.marks) == 0
+    if exist('id', 'var')
+        % increment channel version
+        id.channels = id.channels + 1;
+        varargout{1} = id;
+    end
     
     % create easy-to-read structures of good and bad channels
     [goodChanList, badChanList] = makeChannelLists(EEG);
@@ -81,7 +83,12 @@ if isequal(origMarks, EEG.marks) == 0
     EEG = updateChanHistory(EEG, goodChanList, badChanList);
 else
     warning('No channels marked. Returning the same EEG.')
+    if exist('id', 'var')
+        varargout{1} = id;
+    end
 end
+
+
 
 
 
