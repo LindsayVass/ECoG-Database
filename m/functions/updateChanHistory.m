@@ -16,10 +16,23 @@ function EEG = updateChanHistory(EEG, goodChanList, badChanList)
 
 if isfield(EEG, 'chan_history') == 0
     histInd = 1;
+    addEntry = 1;
 else
     histInd = length(EEG.chan_history) + 1;
+    
+    % check whether any channels have changed since previous entry
+    checkGood = isequal(goodChanList, EEG.chan_history(histInd - 1).good_chans);
+    checkBad  = isequal(badChanList, EEG.chan_history(histInd - 1).bad_chans);
+    if checkGood == 1 && checkBad == 1
+        addEntry = 0;
+        warning('Channels are same as previous version. No changes have been made to chan_history.');
+    else
+        addEntry = 1;
+    end
 end
 
-EEG.chan_history(histInd).date = datestr(now);
-EEG.chan_history(histInd).good_chans = goodChanList;
-EEG.chan_history(histInd).bad_chans = badChanList;
+if addEntry
+    EEG.chan_history(histInd).date = datestr(now);
+    EEG.chan_history(histInd).good_chans = goodChanList;
+    EEG.chan_history(histInd).bad_chans = badChanList;
+end
