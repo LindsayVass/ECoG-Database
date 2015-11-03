@@ -15,14 +15,11 @@ function EEG = updateChanHistory(EEG, goodChanList, badChanList)
 %   EEG: updated EEGLAB structure
 
 if isfield(EEG, 'chan_history') == 0
-    chanVerID = 1;
     histInd = 1;
 else
     histInd = length(EEG.chan_history) + 1;
-    chanVerID = EEG.chan_history(end).chanVerID + 1;
 end
 
-EEG.chan_history(histInd).chanVerID = chanVerID;
 EEG.chan_history(histInd).date = datestr(now);
 EEG.chan_history(histInd).good_chans = goodChanList;
 EEG.chan_history(histInd).bad_chans = badChanList;
