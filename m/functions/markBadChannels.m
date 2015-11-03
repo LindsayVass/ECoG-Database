@@ -68,8 +68,6 @@ message = ['In the EEGLAB window, select Edit --> Visually edit in scroll plot. 
     'DO NOT CLOSE THIS BOX OR PRESS OK UNTIL FINISHED!'];
 h = msgbox(sprintf(message), 'Mark Bad Channels', 'help');
 
-
-
 % after done marking channels...
 waitfor(h);
 
