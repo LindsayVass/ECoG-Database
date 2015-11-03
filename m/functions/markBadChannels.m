@@ -58,35 +58,42 @@ if sum(strcmpi({EEG.marks.chan_info.label}, 'marker')) == 0
 end
 
 origMarks = EEG.marks;
-message = ['In the EEGLAB window, select Edit --> Visually edit in scroll plot. When the pop-up configuration window appears, select OK. \n\n' ...
+message = ['When the pop-up configuration window appears, select OK. \n\n' ...
     'Right click on any channels that exhibit gross signal abnormalities. Right click again to de-select a channel. \n\n' ...
     'To identify the marker channel, hold your cursor over the channel and press the M key. To de-select the channel, press M again. \n\n' ...
-    'When complete, press Update EEG Structure button at bottom right. \n\n'...
-    'DO NOT CLOSE THIS BOX OR PRESS OK UNTIL FINISHED!'];
+    'When complete, press Update EEG Structure button at bottom right. \n\n'];
 h = msgbox(sprintf(message), 'Mark Bad Channels', 'help');
 
-% after done marking channels...
-waitfor(h);
+EEG = pop_vised(EEG);
 
-% if anything changed
-if isequal(origMarks, EEG.marks) == 0
-    if exist('id', 'var')
-        % increment channel version
-        id.channels = id.channels + 1;
-        varargout{1} = id;
-    end
-    
-    % create easy-to-read structures of good and bad channels
-    [goodChanList, badChanList] = makeChannelLists(EEG);
-    
-    % update chan_history
-    EEG = updateChanHistory(EEG, goodChanList, badChanList);
-else
-    warning('No channels marked. Returning the same EEG.')
-    if exist('id', 'var')
-        varargout{1} = id;
+doneMarking = 0;
+while ~doneMarking
+end
+
+% after done marking channels...
+
+if doneMarking
+    % if anything changed
+    if isequal(origMarks, EEG.marks) == 0
+        if exist('id', 'var')
+            % increment channel version
+            id.channels = id.channels + 1;
+            varargout{1} = id;
+        end
+        
+        % create easy-to-read structures of good and bad channels
+        [goodChanList, badChanList] = makeChannelLists(EEG);
+        
+        % update chan_history
+        EEG = updateChanHistory(EEG, goodChanList, badChanList);
+    else
+        warning('No channels marked. Returning the same EEG.')
+        if exist('id', 'var')
+            varargout{1} = id;
+        end
     end
 end
+
 
 
 
