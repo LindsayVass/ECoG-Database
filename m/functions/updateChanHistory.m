@@ -1,4 +1,4 @@
-function EEG = updateChanHistory(EEG, chanVerID, goodChanList, badChanList)
+function EEG = updateChanHistory(EEG, goodChanList, badChanList)
 % Update the EEG.chan_history structure to reflect changes to the list of
 % good and bad channels.
 %
@@ -6,7 +6,6 @@ function EEG = updateChanHistory(EEG, chanVerID, goodChanList, badChanList)
 %
 % Inputs:
 %   EEG: EEGLAB structure
-%   chanVerID: integer indicating current version of channel inclusion
 %   goodChanList: structure of good channel data, output by
 %       makeChannelLists.m
 %   badChanList: structure of bad channel data, output by
@@ -15,7 +14,13 @@ function EEG = updateChanHistory(EEG, chanVerID, goodChanList, badChanList)
 % Output:
 %   EEG: updated EEGLAB structure
 
-histInd = length(EEG.chan_history) + 1;
+if isfield(EEG, 'chan_history') == 0
+    chanVerID = 1;
+    histInd = 1;
+else
+    histInd = length(EEG.chan_history) + 1;
+    chanVerID = EEG.chan_history(end).chanVerID + 1;
+end
 
 EEG.chan_history(histInd).chanVerID = chanVerID;
 EEG.chan_history(histInd).date = datestr(now);
