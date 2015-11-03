@@ -49,7 +49,6 @@ EEG.task = nkdata.task;
 EEG.nbchan = nkdata.nchannels;
 EEG.srate  = nkdata.sampHz;
 EEG.start_time = nkdata.start_time;
-EEG.chan_history.chanVerID = 0;
 EEG.chan_history.date = datestr(now);
 EEG.chan_history.good_chans.electrode_name = [];
 EEG.chan_history.good_chans.electrode_ind = [];
