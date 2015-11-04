@@ -58,8 +58,6 @@ multiWaitbar('Re-referencing each strip/depth...', 0);
 for thisStrip = 1:length(stripList)
     multiWaitbar('Re-referencing each strip/depth...', thisStrip / length(stripList));
     
-    EEGreref.reref.chan.ref_ind(goodStripInds) = {goodStripInds};
-    
     % indices on this strip
     stripInds     = find(strcmpi(stripNames, stripList(thisStrip)));
     goodStripInds = intersect(stripInds, goodChanInds);
@@ -67,6 +65,9 @@ for thisStrip = 1:length(stripList)
     % calculate ref data
     refData = mean(EEG.data(goodStripInds, :), 1);
     EEGreref.data(goodStripInds, :) = EEGreref.data(goodStripInds, :) - repmat(refData, [length(goodStripInds) 1]);
+    
+    % update EEG.reref.chan.ref_ind
+    EEGreref.reref.chan.ref_ind(goodStripInds) = {goodStripInds};
 end
 multiWaitbar('Re-referencing each strip/depth...', 'Close');
 
