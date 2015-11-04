@@ -1,7 +1,7 @@
 function EEGreref = rerefAllGoodChans(EEG, goodChanInds)
 
 % Re-reference the data by subtracting from each electrode the mean time
-% series across all good channels. 
+% series across all good channels.
 
 % Input:
 %   EEG: EEGLAB structure containing data to be re-referenced. By default,
@@ -20,7 +20,7 @@ function EEGreref = rerefAllGoodChans(EEG, goodChanInds)
 %   EEGreref: EEGLAB structure containing the re-referenced data.
 
 %% identify good channels
-if exist('goodChanInds', 'var')
+if nargin == 2
 else
     if isfield(EEG, 'marks') == 0
         warning('EEG does not contain marks structure and goodChanInds has not been specified. Using all channels for re-referencing.')
@@ -33,11 +33,28 @@ else
 end
 
 %% re-reference the data
+% check if using our updated EEG.ref structure
+if isfield(EEG, 'reref') == 0
+    warning('Unable to determine if this data set has already been re-referenced. Proceed with caution!');
+else
+    if strcmpi(EEG.reref.scheme, 'common') == 0
+        error('According to EEG.ref, this dataset has already been referenced.')
+    end
+end
+
 origData  = EEG.data(goodChanInds, :);
 refData   = mean(EEG.data(goodChanInds, :), 1);
 refData   = repmat(refData, [size(origData, 1) 1]);
 rerefData = origData - refData;
 
 %% put the new data into the new EEG structure
-EEGreref  = EEG;
+EEGreref = EEG;
 EEGreref.data(goodChanInds, :) = rerefData(:, :);
+
+%% update reference scheme
+EEGreref.reref.scheme = 'AllGoodChans';
+EEGreref.reref.date   = datestr(now);
+EEGreref.reref.chan.electrode_name = deal({EEG.chanlocs.labels})';
+EEGreref.reref.chan.electrode_ind  = deal(1:1:EEG.nbchan)';
+EEGreref.reref.chan.ref_ind = cell(EEG.nbchan, 1);
+EEGreref.reref.chan.ref_ind(goodChanInds) = {goodChanInds};
