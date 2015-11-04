@@ -56,11 +56,11 @@ EEG.chan_history.bad_chans.label = [];
 EEG.chan_history.bad_chans.electrode_name = [];
 EEG.chan_history.bad_chans.electrode_ind = [];
 
-EEG.ref.scheme = 'Common';
-EEG.ref.date = datestr(now);
-EEG.ref.chan.electrode_name = [];
-EEG.ref.chan.electrode_ind = [];
-EEG.ref.chan.ref_ind = [];
+EEG.reref.scheme = 'Common';
+EEG.reref.date = datestr(now);
+EEG.reref.chan.electrode_name = [];
+EEG.reref.chan.electrode_ind = [];
+EEG.reref.chan.ref_ind = [];
 
 % insert electrode-wise info
 multiWaitbar('Inputting electrode data', 0);
