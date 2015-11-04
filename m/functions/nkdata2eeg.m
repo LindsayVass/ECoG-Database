@@ -56,7 +56,6 @@ EEG.chan_history.bad_chans.label = [];
 EEG.chan_history.bad_chans.electrode_name = [];
 EEG.chan_history.bad_chans.electrode_ind = [];
 
-EEG.ref.refVerID = 0;
 EEG.ref.date = datestr(now);
 EEG.ref.chan.electrode_name = [];
 EEG.ref.chan.electrode_ind = [];
