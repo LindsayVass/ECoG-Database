@@ -22,6 +22,12 @@ function EEG = markBadChannels(EEG)
 
 eeglab redraw;
 
+% load vised configuration
+curPath = which('markBadChannels.m');
+tbInd = strfind(curPath, 'ECoG Database/');
+visedPath = [curPath(1:tbInd + 13) 'config/vised_config_marker_select.mat'];
+load(visedPath);
+
 % initialize marks structure
 if isfield(EEG, 'marks') == 0
     EEG.marks = marks_init(size(EEG.data), 1);
