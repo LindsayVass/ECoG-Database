@@ -1,31 +1,47 @@
+%% set up file naming
+
+% experiment directory, contains a folder for each patient
+expDir = '/Users/Lindsay/Documents/ECoG Database/Sample Data/';
+
+% patient ID, same as name of patient folder (expDir/subjID)
+subjID  = 'TS071';
+subjDir = [expDir subjID '/'];
+
+% id structure
+id = makeIdStruct(subjID, 'LV');
+
 eeglab;
 
 %% load raw .mat data from houston
-subjDir = '/Users/Lindsay/Documents/ECoG Database/Sample Data/TS071/';
+
+% path to nkdata .mat file
 rawMat  = [subjDir 'ECoG_data/Retrieval_data_uncorr/ts071_EkstromRetrievalUncorr_sEEG.mat'];
 load(rawMat);
 
 %% convert from nkdata structure to EEGLAB structure
 EEG = nkdata2eeg(nkdata);
 clear nkdata;
-
-%% save raw data as EEG mat
-if ~exist([subjDir 'PreProcessing'], 'dir')
-    mkdir([subjDir 'PreProcessing']);
-end
-pop_saveset(EEG, [subjDir 'PreProcessing/raw.set']);
-
-%% check for electrodes with gross artifacts
-EEG = pop_loadset([subjDir 'PreProcess/raw.set']);
 eeglab redraw;
 
-% if you have your own customized VISED_CONFIG, then load it here
-% visedConfigPath = '/Users/Lindsay/Documents/ECoG Database/vised_config.mat';
-% load(visedConfigPath);
-% EEG = markBadChannels(EEG, VISED_CONFIG);
+%% save raw data as EEG mat
+preprocDir = [subjDir 'PreProcessing'];
+if ~exist(preprocDir, 'dir')
+    mkdir(preprocDir);
+end
 
-% otherwise, if you don't have a config file
+% save
+filePath = saveEEG(EEG, preprocDir, id);
+
+%% check for electrodes with gross signal artifacts
+EEG = pop_loadset(filePath);
+eeglab redraw;
+
+% mark the marker channel and any obviously bad channels
 EEG = markBadChannels(EEG);
 
-% create an easy-to-read structure of marked channels
-chanList = listBadChannels(EEG);
+% update id
+id.channels = id.channels + 1;
+
+% save updated version
+filePath = saveEEG(EEG, preprocDir, id);
+
