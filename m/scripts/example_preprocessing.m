@@ -60,7 +60,7 @@ EEGreref = rerefAllGoodChans(EEG);
 EEG = pop_vised(EEG, 'data2', 'EEGreref.data');
 
 % update id
-id.rereference = 'AllGoodChans';
+id.rereference = EEGreref.reref.scheme;
 
 % save updated version
 filePath = saveEEG(EEGreref, preprocDir, id);
@@ -68,3 +68,20 @@ filePath = saveEEG(EEGreref, preprocDir, id);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % using mean of the strip/depth %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+EEGreref = rerefStrip(EEG);
+
+% view original data and rereferenced data together
+% original = blue
+% re-ref = gray
+% excluded channels = gray with gray/red triangle next to channel name
+EEG = pop_vised(EEG, 'data2', 'EEGreref.data');
+
+% update id
+id.rereference = EEGreref.reref.scheme;
+
+% save updated version
+filePath = saveEEG(EEGreref, preprocDir, id);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% using bi-polar referencing %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
