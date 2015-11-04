@@ -33,12 +33,12 @@ else
 end
 
 %% re-reference the data
-% check if using our updated EEG.ref structure
+% check if using our updated EEG.reref structure
 if isfield(EEG, 'reref') == 0
     warning('Unable to determine if this data set has already been re-referenced. Proceed with caution!');
 else
     if strcmpi(EEG.reref.scheme, 'common') == 0
-        error('According to EEG.ref, this dataset has already been referenced.')
+        error('According to EEG.reref, this dataset has already been referenced.')
     end
 end
 
