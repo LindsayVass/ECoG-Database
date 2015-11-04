@@ -38,6 +38,7 @@ eeglab redraw;
 
 % mark the marker channel and any obviously bad channels
 EEG = markBadChannels(EEG);
+keyboard;
 
 % update id
 id.channels = id.channels + 1;
@@ -45,3 +46,25 @@ id.channels = id.channels + 1;
 % save updated version
 filePath = saveEEG(EEG, preprocDir, id);
 
+%% re-reference the data
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% using all good channels %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+EEGreref = rerefAllGoodChans(EEG);
+
+% view original data and rereferenced data together
+% original = blue
+% re-ref = gray
+% excluded channels = gray with gray/red triangle next to channel name
+EEG = pop_vised(EEG, 'data2', 'EEGreref.data');
+
+% update id
+id.rereference = 'AllGoodChans';
+
+% save updated version
+filePath = saveEEG(EEGreref, preprocDir, id);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% using mean of the strip/depth %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
