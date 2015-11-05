@@ -67,12 +67,13 @@ if createB
     B = makeBipolarStruct(stripList);
     B = StructDlg(B);
 end
+
 %% get user input for grid geometry
 if createB
     global geomData;
     rerefStrips = {};
     for thisStrip = 1:length(stripList);
-        if B.(stripList{thisStrip}).Include == 1
+        if B.(stripList{thisStrip}).Include == 1 && strcmpi(B.(stripList{thisStrip}).Type, 'MxN Grid')
             rerefStrips(end + 1) = stripList(thisStrip);
             
             % make new geomGui window
