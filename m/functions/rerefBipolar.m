@@ -1,4 +1,4 @@
-function EEGreref = rerefBipolar(EEG)
+function [EEGreref, B] = rerefBipolar(EEG)
 
 % Re-reference the data using a bi-polar referencing scheme that creates
 % virtual electrodes by differencing the signals from adjacent pairs of
@@ -20,8 +20,10 @@ function EEGreref = rerefBipolar(EEG)
 %       does not contain the EEG.marks structure, it will produce a warning
 %       and use all channels for re-referencing.
 %
-% Output:
+% Outputs:
 %   EEGreref: EEGLAB structure containing the re-referenced data.
+%   B: structure containing bi-polar type (strip vs grid), geometry (grids
+%   only)
 
 %% check for EEG.marks
 if isfield(EEG, 'marks') == 0
@@ -91,7 +93,7 @@ end
 
 
 % %% update EEG.reref
-% EEGreref = EEG;
+ EEGreref = EEG;
 % EEGreref.reref.scheme = 'Strip/Depth';
 % EEGreref.reref.date   = datestr(now);
 % EEGreref.reref.chan.electrode_name = deal(chanNames)';
