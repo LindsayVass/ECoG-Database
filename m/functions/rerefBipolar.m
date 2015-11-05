@@ -55,8 +55,8 @@ stripList  = unique(stripNames);
 B = makeBipolarStruct(stripList);
 B = StructDlg(B);
 
-%% get user inputted geometry for grids
-% help pop-up
+%% get user input for grid geometry
+
 global geomData;
 rerefStrips = {};
 for thisStrip = 1:length(stripList);
@@ -67,6 +67,22 @@ for thisStrip = 1:length(stripList);
         geomGui(stripList(thisStrip));
         h = findobj('Tag', 'GeomFigure');
         uiwait(h);
+        
+        % check that there are no non-zero duplicate entries
+        geomDataNoZero = geomData(geomData ~= 0);
+        if length(unique(geomDataNoZero)) < length(geomDataNoZero(:))
+            error('Duplicate electrode entry in table.')
+        end
+        
+        % check that the inputted values match the electrode numbers
+        gridInds = find(strcmpi(stripNames, stripList{thisStrip}));
+        gridList = chanNames(gridInds);
+        gridNums = cellfun(@(x) str2num(x(regexp(x, '\d'))), gridList, 'UniformOutput', false);
+        gridNums = cat(1, gridNums{:});
+        if length(intersect(geomDataNoZero, gridNums)) < length(gridNums)
+            error('Inputted electrode numbers do not match those in EEG.')
+        end
+        
         B.(stripList{thisStrip}).Geometry = geomData;
         
     end
