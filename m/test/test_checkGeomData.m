@@ -31,15 +31,15 @@ end
 
 % TEST3: duplicate electrodes
 % Should FAIL dupCheck
-% Should PASS elecCheck
+% Should FAIL elecCheck
 stripName3 = 'PC';
 geomData3  = [1 2 3 4; 7 0 7 8; 9 10 11 12];
 [dupCheck3, elecCheck3] = checkGeomData(geomData3, stripName3, chanNames);
 if dupCheck3 == true
     error('Test3 dupCheck should be false, but is true.')
 end
-if elecCheck3 == false
-    error('Test3 elecCheck should be true, but is false.')
+if elecCheck3 == true
+    error('Test3 elecCheck should be false, but is true.')
 end
 
 % TEST4: wrong electrode numbers
