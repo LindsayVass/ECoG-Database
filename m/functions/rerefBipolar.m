@@ -81,22 +81,16 @@ if createB
             h = findobj('Tag', 'GeomFigure');
             uiwait(h);
             
-            % check that there are no non-zero duplicate entries
-            geomDataNoZero = geomData(geomData ~= 0);
-            if length(unique(geomDataNoZero)) < length(geomDataNoZero(:))
-                error('Duplicate electrode entry in table.')
-            end
+            % check that geomData structure is valid
+            [dupCheck, elecCheck] = checkGeomData(geomData, stripName, chanNames);
             
-            % check that the inputted values match the electrode numbers
-            gridInds = find(strcmpi(stripNames, stripList{thisStrip}));
-            gridList = chanNames(gridInds);
-            gridNums = cellfun(@(x) str2num(x(regexp(x, '\d'))), gridList, 'UniformOutput', false);
-            gridNums = cat(1, gridNums{:});
-            if length(intersect(geomDataNoZero, gridNums)) < length(gridNums)
-                error('Inputted electrode numbers do not match those in EEG.')
+            if dupCheck == true && elecCheck == true
+                B.(stripList{thisStrip}).Geometry = geomData;
+            elseif dupCheck == false
+                error('There are duplicate entries in the supplied geometry data.')
+            elseif elecCheck == false
+                error('The values supplied in the geometry data do not match the values in the list of channel names.')
             end
-            
-            B.(stripList{thisStrip}).Geometry = geomData;
             
         end
     end
@@ -105,6 +99,10 @@ end
 
 % %% update EEG.reref
 EEGreref = EEG;
+
+
+
+
 % EEGreref.reref.scheme = 'Strip/Depth';
 % EEGreref.reref.date   = datestr(now);
 % EEGreref.reref.chan.electrode_name = deal(chanNames)';
