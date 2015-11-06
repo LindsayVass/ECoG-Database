@@ -35,7 +35,7 @@ gridInds = find(strcmpi(chanNamesNoNums, stripName));
 gridList = chanNames(gridInds);
 gridNums = cellfun(@(x) str2num(x(regexp(x, '\d'))), gridList, 'UniformOutput', false);
 gridNums = cat(1, gridNums{:});
-if isequal(sort(geomDataNoZero), sort(gridNums)) == 0
+if isequal(sort(geomDataNoZero(:)), sort(gridNums(:))) == 0
     elecCheck = false;
 else
     elecCheck = true;
