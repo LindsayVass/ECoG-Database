@@ -97,3 +97,17 @@ filePath = saveEEG(EEGreref, preprocDir, id);
 % save bipolar structure
 bipolarFileName = [preprocDir subjID '_bipolar_referencing_structure.mat'];
 save(bipolarFileName, 'B');
+
+%% perform artifact detection/removal
+
+% prepare data
+origDataPath = '/Users/Lindsay/Documents/ECoG Database/Sample Data/UCDMC14/UCDMC14_TeleporterB_unepoched_RHD.set';
+EEG = pop_loadset(origDataPath);
+eeglab redraw;
+
+outputDir = '/Users/Lindsay/Documents/ECoG Database/Sample Data/UCDMC14/Single_Chan_Data/';
+outputStem = 'UCDMC14_TeleporterB_';
+
+% split data sets
+log = splitDataset(EEG, outputDir, outputStem);
+
