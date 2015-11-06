@@ -22,7 +22,7 @@ function varargout = geomGuide(varargin)
 
 % Edit the above text to modify the response to help geomGuide
 
-% Last Modified by GUIDE v2.5 05-Nov-2015 14:18:02
+% Last Modified by GUIDE v2.5 05-Nov-2015 16:50:30
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -145,5 +145,3 @@ guidata(hObject, handles);
 % --- Executes on button press in done
 function done_Callback(hObject, eventdata, handles)
 uiresume(handles.figure1);
-
-
