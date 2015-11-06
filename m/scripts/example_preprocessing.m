@@ -86,9 +86,14 @@ filePath = saveEEG(EEGreref, preprocDir, id);
 % using bi-polar referencing %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [EEGreref, B] = rerefBipolar(EEG);
+EEGreref.reref.origData = [preprocDir 'TS071_LV_C01_Ref_Common_A00.set'];
 
 % update id
 id.rereference = EEGreref.reref.scheme;
 
 % save updated version
 filePath = saveEEG(EEGreref, preprocDir, id);
+
+% save bipolar structure
+bipolarFileName = [preprocDir subjID '_bipolar_referencing_structure.mat'];
+save(bipolarFileName, 'B');
