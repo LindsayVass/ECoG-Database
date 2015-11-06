@@ -10,6 +10,11 @@ function elecPairs = findAdjacentElectrodes(thisGeom)
 % Output:
 %   elecPairs: Px2 matrix of indices
 
+% make sure at least 2 points
+if length(thisGeom(:)) < 2
+    error('Geometry must contain at least 2 points for bipolar referencing.')
+end
+
 % if 1xN, transpose
 if size(thisGeom, 1) == 1
     thisGeom = thisGeom';

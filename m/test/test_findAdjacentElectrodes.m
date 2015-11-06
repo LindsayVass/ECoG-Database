@@ -50,3 +50,14 @@ elecPairs7 = findAdjacentElectrodes(geom7);
 if length(elecPairs7 ~= 0)
     error('Test7 returned incorrect number of pairs.')
 end
+
+% TEST8: 1x1
+geom8 = 1;
+try
+    elecPairs8 = findAdjacentElectrodes(geom8);
+catch
+end
+if exist('elecPairs8', 'var')
+    error('Test8 should have returned an error, not a result.')
+end
+
