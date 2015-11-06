@@ -70,22 +70,20 @@ end
 
 %% get user input for grid geometry
 if createB
-    global geomData;
-    rerefStrips = {};
     for thisStrip = 1:length(stripList);
-        if B.(stripList{thisStrip}).Include == 1 && strcmpi(B.(stripList{thisStrip}).Type, 'MxN Grid')
-            rerefStrips(end + 1) = stripList(thisStrip);
+        
+        stripName = stripList{thisStrip};
+        
+        if B.(stripName).Include
             
-            % make new geomGui window
-            geomGui(stripList(thisStrip));
-            h = findobj('Tag', 'GeomFigure');
-            uiwait(h);
+            % get grid geometry using GUI
+            geomData = geomGuide(stripList(thisStrip));
             
             % check that geomData structure is valid
             [dupCheck, elecCheck] = checkGeomData(geomData, stripName, chanNames);
             
             if dupCheck == true && elecCheck == true
-                B.(stripList{thisStrip}).Geometry = geomData;
+                B.(stripName).Geometry = geomData;
             elseif dupCheck == false
                 error('There are duplicate entries in the supplied geometry data.')
             elseif elecCheck == false
@@ -96,34 +94,54 @@ if createB
     end
 end
 
+%% perform bipolar referencing
 
-% %% update EEG.reref
+% prepare new EEG structure
 EEGreref = EEG;
+EEGreref.data = [];
+EEGreref.chanlocs(:) = [];
+EEGreref.reref.scheme = 'Bipolar';
+EEGreref.reref.date   = datestr(now);
 
 
-
-
-% EEGreref.reref.scheme = 'Strip/Depth';
-% EEGreref.reref.date   = datestr(now);
-% EEGreref.reref.chan.electrode_name = deal(chanNames)';
-% EEGreref.reref.chan.electrode_ind  = deal(1:1:EEG.nbchan)';
-% EEGreref.reref.chan.ref_ind = cell(EEG.nbchan, 1);
-%
-% %% re-reference the data
-% multiWaitbar('Re-referencing each strip/depth...', 0);
-% for thisStrip = 1:length(stripList)
-%     multiWaitbar('Re-referencing each strip/depth...', thisStrip / length(stripList));
-%
-%     % indices on this strip
-%     stripInds     = find(strcmpi(stripNames, stripList(thisStrip)));
-%     goodStripInds = intersect(stripInds, goodChanInds);
-%
-%     % calculate ref data
-%     refData = mean(EEG.data(goodStripInds, :), 1);
-%     EEGreref.data(goodStripInds, :) = EEGreref.data(goodStripInds, :) - repmat(refData, [length(goodStripInds) 1]);
-%
-%     % update EEG.reref.chan.ref_ind
-%     EEGreref.reref.chan.ref_ind(goodStripInds) = {goodStripInds};
-% end
-% multiWaitbar('Re-referencing each strip/depth...', 'Close');
-
+for thisStrip = 1:length(stripList)
+    
+    stripName = stripList{thisStrip};
+    
+    % if included get geometry
+    if B.(stripName).Include
+        
+        % get this grid's geometry
+        thisGeom = B.(stripName).Geometry;
+        
+        % find indices of adjacent electrodes
+        adjInds = findAdjacentElectrodes(thisGeom);
+        
+        % loop through pairs
+        for thisPair = 1:length(adjInds)
+            
+            % get channel names
+            chan1 = [stripName num2str(thisGeom(adjInds(thisPair, 1)))];
+            chan2 = [stripName num2str(thisGeom(adjInds(thisPair, 2)))];
+            newChanName = [chan1 '_' chan2];
+            
+            % get channel indices
+            chan1Ind = find(strcmpi({EEG.chanlocs.labels}, chan1));
+            chan2Ind = find(strcmpi({EEG.chanlocs.labels}, chan2));
+            newChanInd = length(EEGreref.chanlocs) + 1;
+            
+            % update chan info in EEG struct
+            EEGreref.chanlocs(newChanInd).labels = newChanName;
+            EEGreref.chanlocs(newChanInd).index  = newChanInd;
+            EEGreref.chanlocs(newChanInd).ref    = 'bipolar';
+            EEGreref.reref.chan(newChanInd).electrode_name = newChanName;
+            EEGreref.reref.chan(newChanInd).electrode_ind  = newChanInd;
+            EEGreref.reref.chan(newChanInd).ref_ind = [chan1Ind chan2Ind];
+            EEGreref.reref.chan(newChanInd).ref_name = {chan1, chan2};
+            
+            % insert new chan data into EEG
+            EEGreref.data(newChanInd, :) = EEG.data(chan1Ind, :) - EEG.data(chan2Ind, :);
+            
+        end
+    end
+end
