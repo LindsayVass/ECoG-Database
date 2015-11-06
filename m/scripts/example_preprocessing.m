@@ -85,3 +85,10 @@ filePath = saveEEG(EEGreref, preprocDir, id);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % using bi-polar referencing %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+[EEGreref, B] = rerefBipolar(EEG);
+
+% update id
+id.rereference = EEGreref.reref.scheme;
+
+% save updated version
+filePath = saveEEG(EEGreref, preprocDir, id);
