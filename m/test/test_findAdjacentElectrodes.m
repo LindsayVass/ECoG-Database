@@ -27,3 +27,26 @@ elecPairs4 = findAdjacentElectrodes(geom4);
 if length(elecPairs4) ~= 0
     error('Test4 returned incorrect number of pairs.')
 end
+
+% TEST5: 1x5 full
+geom5 = ones(1,5);
+elecPairs5 = findAdjacentElectrodes(geom5);
+if length(elecPairs5) ~= 4
+    error('Test5 returned incorrect number of pairs.')
+end
+
+% TEST6: 1x5 with hole
+geom6 = ones(1,5);
+geom6(3) = 0;
+elecPairs6 = findAdjacentElectrodes(geom6);
+if length(elecPairs6) ~= 2
+    error('Test6 returned incorrect number of pairs.')
+end
+
+% TEST7: 1x5 with big hole
+geom7 = geom6;
+geom7(2:4) = 0;
+elecPairs7 = findAdjacentElectrodes(geom7);
+if length(elecPairs7 ~= 0)
+    error('Test7 returned incorrect number of pairs.')
+end

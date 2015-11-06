@@ -10,6 +10,11 @@ function elecPairs = findAdjacentElectrodes(thisGeom)
 % Output:
 %   elecPairs: Px2 matrix of indices
 
+% if 1xN, transpose
+if size(thisGeom, 1) == 1
+    thisGeom = thisGeom';
+end
+
 % make grid
 [x, y] = meshgrid(1:size(thisGeom, 2), 1:size(thisGeom, 1));
 
