@@ -22,11 +22,12 @@ for thisEEG = 1:length(EEG)
     sizeCheck(thisEEG, :) = size(EEG(thisEEG).data);
 end
 if length(unique(sizeCheck(:,2))) > 1
-    error('All data sets must have same epoch length.')
+    error('All data sets must have same number of time points per epoch.')
 end
 if length(unique(sizeCheck(:,3))) > 1
     error('All data sets must have same number of epochs.')
 end
+
 
 %% copy data to new data set
 mergedEEG = EEG(1);
@@ -59,7 +60,11 @@ mergedEEG.artifact_history.date                       = datestr(now);
 mergedEEG.artifact_history.type                       = 'Merged Artifacts';
 mergedEEG.artifact_history.artifacts.Mean             = NaN;
 mergedEEG.artifact_history.artifacts.SD               = NaN;
-mergedEEG.artifact_history.artifacts.EpochSecs        = EEG(1).artifact_history.artifacts.EpochSecs;
+if isfield(EEG(1), 'artifact_history')
+    mergedEEG.artifact_history.artifacts.EpochSecs        = EEG(1).artifact_history.artifacts.EpochSecs;
+else
+    mergedEEG.artifact_history.artifacts.EpochSecs = NaN;
+end
 mergedEEG.artifact_history.artifacts.ThresholdSD      = NaN;
 mergedEEG.artifact_history.artifacts.NumBadEpochs     = length(find(mergedEEG.reject.rejthresh));
 mergedEEG.artifact_history.artifacts.TotalEpochs      = length(mergedEEG.reject.rejthresh);
@@ -70,7 +75,7 @@ for thisEEG = 1:length(EEG)
     if isfield(EEG(thisEEG), 'artifact_history')
         mergedEEG.channel_artifact_history(thisEEG).electrode_name = EEG(thisEEG).chanlocs(1).labels;
         mergedEEG.channel_artifact_history(thisEEG).electrode_ind = thisEEG;
-
+        
         if ~isfield(mergedEEG, 'channel_artifact_history')
         else
             mergedEEG.channel_artifact_history(thisEEG).artifact_history = EEG(thisEEG).artifact_history;
