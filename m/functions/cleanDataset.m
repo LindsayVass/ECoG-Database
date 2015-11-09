@@ -21,6 +21,8 @@ function [channelStats, markedEEG] = cleanDataset(EEG, epochSecs, numSD)
 %   channelStats: structure containing statistics for this channel,
 %       including mean, SD, threshold (numSD), epoch length (epochSecs), 
 %       number of flagged epochs, and percent of flagged epochs
+%   markedEEG; EEGLAB struct containing epoched data and updated marks
+%       structure reflecting bad epochs
 
 % check that dataset is only one channel
 if (size(EEG.data, 1) > 1)
@@ -39,7 +41,15 @@ end
 % calculate channel statistics
 chanMean = mean(EEG.data(:));
 chanSD   = std(EEG.data(:));
+chanHigh = chanMean + numSD * chanSD;
+chanLow  = chanMean - numSD * chanSD;
 
 % prepare channelStats structure
 channelStats = struct('Mean', chanMean, 'SD', chanSD, 'EpochSecs', epochSecs, 'ThresholdSD', numSD, 'BadEpochs', [], 'TotalEpochs', [], 'PercentBadEpochs', []);
+
+% create epoched dataset
+epochedEEG = marks_continuous2epochs(EEG, 'recurrence', epochSecs, 'limits', [0 epochSecs]);
+
+% identify bad epochs
+[markedEEG, ind] = pop_eegthresh(epochedEEG, 1, 1, chanLow, chanHigh, 0, epochSecs, 1, 0);
 
