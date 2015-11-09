@@ -68,23 +68,13 @@ mergedEEG.artifact_history.artifacts.BadEpochInds     = find(mergedEEG.reject.re
 
 for thisEEG = 1:length(EEG)
     if isfield(EEG(thisEEG), 'artifact_history')
-        clear histInd
-        artHist = EEG(thisEEG).artifact_history;
-        [artHist(1:end).electrode_name] = deal(EEG(thisEEG).chanlocs(1).labels);
-        [artHist.electrode_ind] = deal(thisEEG);
-        artHist = orderfields(artHist, [4 5 1 2 3]);
-        
+        mergedEEG.channel_artifact_history(thisEEG).electrode_name = EEG(thisEEG).chanlocs(1).labels;
+        mergedEEG.channel_artifact_history(thisEEG).electrode_ind = thisEEG;
+
         if ~isfield(mergedEEG, 'channel_artifact_history')
-            histInd = 1;
         else
-            histInd = length(mergedEEG.channel_artifact_history) + 1;
+            mergedEEG.channel_artifact_history(thisEEG).artifact_history = EEG(thisEEG).artifact_history;
         end
-        
-        for thisHist = 1:length(artHist)
-            mergedEEG.channel_artifact_history(histInd) = artHist(thisHist);
-            histInd = histInd + 1;
-        end
-        
     end
 end
 
