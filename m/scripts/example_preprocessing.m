@@ -111,3 +111,19 @@ outputStem = 'UCDMC14_TeleporterB_';
 % split data sets
 log = splitDataset(EEG, outputDir, outputStem);
 
+% clean data sets
+outputDirNoSpace = strrep(outputDir, ' ', '\ ');
+system(['mkdir ' outputDirNoSpace 'epoched/']);
+for thisData = 1:length(log)
+    EEG = pop_loadset(log{thisData});
+    [~, markedEEG] = cleanDataset(EEG);
+    outName = [outputDir 'epoched/' outputStem EEG.chanlocs(1).labels '_marked.set'];
+    pop_saveset(markedEEG, outName);
+end
+
+% view epochs marked for rejection
+EEGpath = [outputDir 'epoched/UCDMC14_TeleporterB_RHD4_marked.set'];
+EEG = pop_loadset(EEGpath);
+EEG = pop_vised(EEG);
+
+
