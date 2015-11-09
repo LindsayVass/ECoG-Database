@@ -27,3 +27,68 @@ end
 if length(unique(sizeCheck(:,3))) > 1
     error('All data sets must have same number of epochs.')
 end
+
+%% copy data to new data set
+mergedEEG = EEG(1);
+mergedEEG.filename = '';
+mergedEEG.datfile = '';
+mergedEEG.nbchan = length(EEG);
+mergedEEG.data = zeros(length(EEG), size(EEG(1).data, 2), size(EEG(1).data, 3));
+
+% copy data and channel labels
+for thisEEG = 1:length(EEG)
+    mergedEEG.data(thisEEG, :, :) = EEG(thisEEG).data;
+    mergedEEG.chanlocs(thisEEG) = EEG(thisEEG).chanlocs;
+end
+
+mergedEEG.chan_history.date = datestr(now);
+mergedEEG.chan_history.good_chans.electrode_name = {mergedEEG.chanlocs.labels}';
+mergedEEG.chan_history.good_chans.electrode_ind = [1:1:mergedEEG.nbchan]';
+
+% copy chan_history
+for thisEEG = 1:length(EEG)
+    mergedEEG.chan_history.individ_chan_history(thisEEG).electrode_name = mergedEEG.chanlocs(thisEEG).labels;
+    mergedEEG.chan_history.individ_chan_history(thisEEG).electrode_ind  = thisEEG;
+    if isfield(EEG(thisEEG), 'chan_history')
+        mergedEEG.chan_history.individ_chan_history(thisEEG).chan_history = EEG(thisEEG).chan_history;
+    end
+end
+
+% copy artifact_history
+mergedEEG.artifact_history.date                       = datestr(now);
+mergedEEG.artifact_history.type                       = 'Merged Artifacts';
+mergedEEG.artifact_history.artifacts.Mean             = NaN;
+mergedEEG.artifact_history.artifacts.SD               = NaN;
+mergedEEG.artifact_history.artifacts.EpochSecs        = EEG(1).artifact_history.artifacts.EpochSecs;
+mergedEEG.artifact_history.artifacts.ThresholdSD      = NaN;
+mergedEEG.artifact_history.artifacts.NumBadEpochs     = length(find(mergedEEG.reject.rejthresh));
+mergedEEG.artifact_history.artifacts.TotalEpochs      = length(mergedEEG.reject.rejthresh);
+mergedEEG.artifact_history.artifacts.PercentBadEpochs = (mergedEEG.artifact_history.artifacts.NumBadEpochs / mergedEEG.artifact_history.artifacts.TotalEpochs) * 100;
+mergedEEG.artifact_history.artifacts.BadEpochInds     = find(mergedEEG.reject.rejthresh);
+
+for thisEEG = 1:length(EEG)
+    if isfield(EEG(thisEEG), 'artifact_history')
+        artHist = EEG(thisEEG).artifact_history;
+        artHist.electrode_name = EEG(thisEEG).chanlocs(1).labels;
+        artHist.electrode_ind  = thisEEG;
+        artHist = orderfields(artHist, [4 5 1 2 3]);
+        
+        mergedEEG.channel_artifact_history(thisEEG) = artHist;
+        
+    end
+end
+
+%% merge rejected epochs and marks
+newRej = zeros(length(EEG), size(EEG(1).data, 3));
+for thisEEG = 1:length(EEG)
+    newRej(thisEEG, :) = EEG(thisEEG).reject.rejthresh;
+end
+newRej = sum(newRej, 1);
+newRej(newRej > 1) = 1;
+
+mergedEEG.reject.rejthresh = newRej;
+mergedEEG.reject.rejthreshE = [];
+
+mergedEEG = rmfield(mergedEEG, 'marks');
+mergedEEG = reject2marks(mergedEEG);
+
