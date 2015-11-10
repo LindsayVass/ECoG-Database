@@ -1,4 +1,4 @@
-function EEG=marks_epochs2continuous(EEG)
+function EEG=marks_epochs2continuous_LKV(EEG)
 
 evtcount=0;
 if ~isempty(EEG.event); % in case there are no events
@@ -155,5 +155,9 @@ EEG.xmax=(size(EEG.data,2)-1)*(1/EEG.srate);
 if isfield(EEG,'marks');
     EEG=marks_moveflags(EEG,2);
 end
+
+% remove temporary event added by marks_continuous2epochs_LKV
+tmpEvtInd = find(strcmpi('tmp', {EEG.event.type}));
+EEG.event(tmpEvtInd) = [];
 
 EEG=eeg_checkset(EEG);
