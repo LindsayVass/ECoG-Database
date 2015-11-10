@@ -1,4 +1,4 @@
-function splitLog = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD)
+function log = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD)
 % Take an EEG structure containing 1 or more channels, split it into
 % separate data sets for each channel, and clean each channel. Each
 % channel's data will be split into contiguous epochs (length = epochSecs)
