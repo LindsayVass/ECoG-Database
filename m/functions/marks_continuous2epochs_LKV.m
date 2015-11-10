@@ -105,6 +105,15 @@ if ~isempty(EEG.event);
     while any(strcmp(tmpevt,unique({EEG.event.type})));
         tmpevt=[tmpevt,'X'];
     end
+else
+    % add a temporary event if there are none; this is necessary because
+    % marks_moveflags below calls pop_select, which calls eeg_checkset; if
+    % there are no events, eeg_checkset does not clean up the EEG.epoch
+    % structure, which is needed to later convert from epochs back to a
+    % continuous dataset
+    EEG.event(1).latency  = 1;
+    EEG.event(1).type     = 'tmp';
+    EEG.event(1).duration = 0;
 end
 
 %% ADJUST DATA ARRAY ...
