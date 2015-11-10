@@ -96,10 +96,11 @@ for epi=1:EEG.trials;
     end
     
     %handle events...
-    if iscell(EEG.epoch(epi).eventtype);
-        EEG.epoch(epi).eventtype=cellstr(EEG.epoch(epi).eventtype);
-        EEG.epoch(epi).eventlatency={EEG.epoch(epi).eventlatency};
-    end
+    %%%%% not sure what this section is supposed to do
+%     if iscell(EEG.epoch(epi).eventtype);
+%         EEG.epoch(epi).eventtype=cellstr(EEG.epoch(epi).eventtype);
+%         EEG.epoch(epi).eventlatency={EEG.epoch(epi).eventlatency};
+%     end
     for evi=1:length(EEG.epoch(epi).eventtype);
         %adjust new EEG.event latency field...
         cntstrtpnt=(EEG.epoch(epi).startpnt-pntgap);%start point of current window in the new continuous data...
