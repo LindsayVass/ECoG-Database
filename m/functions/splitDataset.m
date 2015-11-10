@@ -22,6 +22,12 @@ if strcmpi(outputDir(end), '/') == 0
     outputDir = [outputDir '/'];
 end
 
+% if outputDir doesn't exist, create it
+if ~exist(outputDir, 'dir')
+    outputDirNoSpace = strrep(outputDir, ' ', '\ ');
+    system(['mkdir ' outputDirNoSpace);
+end
+
 % check that outputStem ends with '_'
 if strcmpi(outputStem(end), '_') == 0
     outputStem = [outputStem '_'];
