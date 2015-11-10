@@ -96,26 +96,17 @@ for epi=1:EEG.trials;
     end
     
     %handle events...
-    %%%%% not sure what this section is supposed to do
-%     if iscell(EEG.epoch(epi).eventtype);
-%         EEG.epoch(epi).eventtype=cellstr(EEG.epoch(epi).eventtype);
-%         EEG.epoch(epi).eventlatency={EEG.epoch(epi).eventlatency};
-%     end
+    if ischar(EEG.epoch(epi).eventtype);
+        EEG.epoch(epi).eventtype=cellstr(EEG.epoch(epi).eventtype);
+        EEG.epoch(epi).eventlatency={EEG.epoch(epi).eventlatency};
+    end
     for evi=1:length(EEG.epoch(epi).eventtype);
         %adjust new EEG.event latency field...
         cntstrtpnt=(EEG.epoch(epi).startpnt-pntgap);%start point of current window in the new continuous data...
         evtept=abs(relstrtt-EEG.epoch(epi).eventlatency{evi});%event time within the current window...
         evteppnts=evtept/sampdur;
         clat=evteppnts+cntstrtpnt;
-        %        if epi<11;
-        %            epi
-        %            evi
-        %            clat
-        %            lastevtpnt
-        %            clat-lastevtpnt
-        %            EEG.epoch(epi).eventurevent{evi}
-        %            if evtcount>1;EEG.event(evtcount-1).urevent;end
-        %        end
+        
         if evtcount==0;
             evtcount=evtcount+1;
             EEG.event(evtcount)=tmp.event(EEG.epoch(epi).event(evi));
