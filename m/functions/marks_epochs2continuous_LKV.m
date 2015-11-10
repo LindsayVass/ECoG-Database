@@ -96,7 +96,7 @@ for epi=1:EEG.trials;
     end
     
     %handle events...
-    if ischar(EEG.epoch(epi).eventtype);
+    if iscell(EEG.epoch(epi).eventtype);
         EEG.epoch(epi).eventtype=cellstr(EEG.epoch(epi).eventtype);
         EEG.epoch(epi).eventlatency={EEG.epoch(epi).eventlatency};
     end
