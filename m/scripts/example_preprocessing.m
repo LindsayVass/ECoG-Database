@@ -126,4 +126,18 @@ EEGpath = [outputDir 'epoched/UCDMC14_TeleporterB_RHD4_marked.set'];
 EEG = pop_loadset(EEGpath);
 EEG = pop_vised(EEG);
 
+% merge EEG back together
+cd('epoched');
+eegPaths = {'UCDMC14_TeleporterB_RHD1_marked.set',...
+            'UCDMC14_TeleporterB_RHD2_marked.set',...
+            'UCDMC14_TeleporterB_RHD3_marked.set',...
+            'UCDMC14_TeleporterB_RHD4_marked.set',...
+            'UCDMC14_TeleporterB_RHD5_marked.set',...
+            'UCDMC14_TeleporterB_RHD6_marked.set'};
+mergedEEG = mergeCleanedDatasets(eegPaths);
 
+% view epochs marked for rejection
+mergedEEG = pop_vised(mergedEEG);
+
+% convert back to continuous dataset from epoched dataset
+contEEG = marks_epochs2continuous_LKV(mergedEEG);
