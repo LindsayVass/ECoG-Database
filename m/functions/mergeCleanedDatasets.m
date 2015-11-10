@@ -97,3 +97,6 @@ mergedEEG.reject.rejthreshE = [];
 mergedEEG = rmfield(mergedEEG, 'marks');
 mergedEEG = reject2marks(mergedEEG);
 
+%% convert back to continuous dataset from epoched dataset
+mergedEEG = marks_epochs2continuous_LKV(mergedEEG);
+
