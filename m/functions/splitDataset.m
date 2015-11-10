@@ -25,7 +25,7 @@ end
 % if outputDir doesn't exist, create it
 if ~exist(outputDir, 'dir')
     outputDirNoSpace = strrep(outputDir, ' ', '\ ');
-    system(['mkdir ' outputDirNoSpace);
+    system(['mkdir ' outputDirNoSpace]);
 end
 
 % check that outputStem ends with '_'
