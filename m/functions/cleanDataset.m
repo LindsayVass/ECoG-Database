@@ -48,7 +48,7 @@ chanLow  = chanMean - numSD * chanSD;
 channelStats = struct('Mean', chanMean, 'SD', chanSD, 'EpochSecs', epochSecs, 'ThresholdSD', numSD, 'NumBadEpochs', [], 'TotalEpochs', [], 'PercentBadEpochs', [], 'BadEpochInds', []);
 
 % create epoched dataset
-epochedEEG = marks_continuous2epochs(EEG, 'recurrence', epochSecs, 'limits', [0 epochSecs]);
+epochedEEG = marks_continuous2epochs_LKV(EEG, 'recurrence', epochSecs, 'limits', [0 epochSecs]);
 
 % identify bad epochs
 [markedEEG, ind] = pop_eegthresh(epochedEEG, 1, 1, chanLow, chanHigh, 0, epochSecs, 1, 0);
