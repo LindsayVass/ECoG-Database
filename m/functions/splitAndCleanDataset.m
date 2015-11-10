@@ -50,7 +50,7 @@ splitLog = splitDataset(EEG, outputDirOrig, outputStem);
 
 % prep output dir
 if ~exist('outputDirNoSpace', 'var')
-    outputDirNoSpace = strrep(outputDir, ' ', '\ ')
+    outputDirNoSpace = strrep(outputDir, ' ', '\ ');
 end
 outputDirClean = [outputDir 'clean_epoched/'];
 outputDirCleanNoSpace = [outputDirNoSpace 'clean_epoched/'];
