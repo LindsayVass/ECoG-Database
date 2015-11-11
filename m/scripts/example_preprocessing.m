@@ -101,43 +101,36 @@ save(bipolarFileName, 'B');
 %% perform artifact detection/removal
 
 % prepare data
-origDataPath = '/Users/Lindsay/Documents/ECoG Database/Sample Data/UCDMC14/UCDMC14_TeleporterB_unepoched_RHD.set';
+origDataPath = '/Users/Lindsay/Documents/ECoG Database/Sample Data/TS071/PreProcessing/TS071_LV_C01_Ref_AllGoodChans_A00.set';
 EEG = pop_loadset(origDataPath);
 eeglab redraw;
 
-outputDir = '/Users/Lindsay/Documents/ECoG Database/Sample Data/UCDMC14/Single_Chan_Data/';
-outputStem = 'UCDMC14_TeleporterB_';
+outputDir = '/Users/Lindsay/Documents/ECoG Database/Sample Data/TS071/PreProcessing/C01_Ref_AllGoodChans_A00_Single_Chan_Data/';
+outputStem = 'TS071_LV_C01_Ref_AllGoodChans_A00_';
 
-% split data sets
-log = splitDataset(EEG, outputDir, outputStem);
+% Clean the data for each channel separately. This next function will first
+% split your dataset into multiple data sets containing one channel each.
+% These are contained in a folder called 'dirty_unepoched', which is
+% created inside outputDir. It will then epoch each channel's data into
+% short consecutive epochs (length = epochSecs). Finally, it will flag any
+% epoch that contains extreme values, defined as a value that exceeds a
+% certain number of standard deviations away from the mean (threshold =
+% numSD). These marked and epoched files will be contained in a folder
+% called 'clean_epoched', also found in outputDir.
+epochSecs = 1;
+numSD     = 5;
+fileList  = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD);
 
-% clean data sets
-outputDirNoSpace = strrep(outputDir, ' ', '\ ');
-system(['mkdir ' outputDirNoSpace 'epoched/']);
-for thisData = 1:length(log)
-    EEG = pop_loadset(log{thisData});
-    [~, markedEEG] = cleanDataset(EEG);
-    outName = [outputDir 'epoched/' outputStem EEG.chanlocs(1).labels '_marked.set'];
-    pop_saveset(markedEEG, outName);
-end
+% Once the data has been separated out by channel, you can recombine it as
+% you see fit. 
 
-% view epochs marked for rejection
-EEGpath = [outputDir 'epoched/UCDMC14_TeleporterB_RHD4_marked.set'];
-EEG = pop_loadset(EEGpath);
-EEG = pop_vised(EEG);
+% To recombine all channels back into one file:
+% Note that any time point flagged as bad for one channel will be flagged
+% as bad for ALL channels, so you will probably lose a LOT of data this
+% way.
+mergedEEG = mergeCleanedDatasets(fileList);
+fprintf('\n\n%0.1f%% of the data set marked as an artifact.\n', mergedEEG.artifact_history.artifacts.PercentBadEpochs)
 
-% merge EEG back together
-cd('epoched');
-eegPaths = {'UCDMC14_TeleporterB_RHD1_marked.set',...
-            'UCDMC14_TeleporterB_RHD2_marked.set',...
-            'UCDMC14_TeleporterB_RHD3_marked.set',...
-            'UCDMC14_TeleporterB_RHD4_marked.set',...
-            'UCDMC14_TeleporterB_RHD5_marked.set',...
-            'UCDMC14_TeleporterB_RHD6_marked.set'};
-mergedEEG = mergeCleanedDatasets(eegPaths);
-
-% view epochs marked for rejection
+% view time points marked for rejection
 mergedEEG = pop_vised(mergedEEG);
 
-% convert back to continuous dataset from epoched dataset
-contEEG = marks_epochs2continuous_LKV(mergedEEG);
