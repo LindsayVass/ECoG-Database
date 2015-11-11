@@ -42,9 +42,14 @@ for thisEEG = 1:length(EEG)
     mergedEEG.chanlocs(thisEEG) = EEG(thisEEG).chanlocs;
 end
 
+mergedEEG.chan_history = [];
 mergedEEG.chan_history.date = datestr(now);
-mergedEEG.chan_history.good_chans.electrode_name = {mergedEEG.chanlocs.labels}';
-mergedEEG.chan_history.good_chans.electrode_ind = [1:1:mergedEEG.nbchan]';
+[mergedEEG.chan_history.good_chans(1:length(mergedEEG.chanlocs)).electrode_name] = deal(mergedEEG.chanlocs.labels);
+chanInds = num2cell([1:1:mergedEEG.nbchan]);
+[mergedEEG.chan_history.good_chans(1:length(mergedEEG.chanlocs)).electrode_ind] = deal(chanInds{:});
+mergedEEG.chan_history.bad_chans.label = [];
+mergedEEG.chan_history.bad_chans.electrode_name = [];
+mergedEEG.chan_history.bad_chans.electrode_ind = [];
 
 % copy chan_history
 for thisEEG = 1:length(EEG)
