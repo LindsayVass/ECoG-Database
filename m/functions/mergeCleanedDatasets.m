@@ -60,7 +60,21 @@ for thisEEG = 1:length(EEG)
     end
 end
 
-% copy artifact_history
+%% merge rejected epochs and marks
+newRej = zeros(length(EEG), size(EEG(1).data, 3));
+for thisEEG = 1:length(EEG)
+    newRej(thisEEG, :) = EEG(thisEEG).reject.rejthresh;
+end
+newRej = sum(newRej, 1);
+newRej(newRej > 1) = 1;
+
+mergedEEG.reject.rejthresh = newRej;
+mergedEEG.reject.rejthreshE = [];
+
+mergedEEG = rmfield(mergedEEG, 'marks');
+mergedEEG = reject2marks(mergedEEG);
+
+%% update artifact_history
 mergedEEG.artifact_history.date                       = datestr(now);
 mergedEEG.artifact_history.type                       = 'Merged Artifacts';
 mergedEEG.artifact_history.artifacts.Mean             = NaN;
@@ -87,20 +101,6 @@ for thisEEG = 1:length(EEG)
         end
     end
 end
-
-%% merge rejected epochs and marks
-newRej = zeros(length(EEG), size(EEG(1).data, 3));
-for thisEEG = 1:length(EEG)
-    newRej(thisEEG, :) = EEG(thisEEG).reject.rejthresh;
-end
-newRej = sum(newRej, 1);
-newRej(newRej > 1) = 1;
-
-mergedEEG.reject.rejthresh = newRej;
-mergedEEG.reject.rejthreshE = [];
-
-mergedEEG = rmfield(mergedEEG, 'marks');
-mergedEEG = reject2marks(mergedEEG);
 
 %% convert back to continuous dataset from epoched dataset
 mergedEEG = marks_epochs2continuous_LKV(mergedEEG);
