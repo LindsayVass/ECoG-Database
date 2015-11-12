@@ -20,7 +20,7 @@ if isfield(EEG,'marks')
 end
 
 %collect reject structure into the marks structure...
-EEG=reject2marks(EEG);
+EEG=reject2marks_LKV(EEG);
 
 %size(EEG.marks.time_info(1).flags)
 
