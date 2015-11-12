@@ -41,13 +41,18 @@ if isfield(EEG, 'marks')
     allFlags  = sum(allFlags, 2);
     goodChans = find(allFlags == 0);
     
-    % get marker channel
+    % try to get marker channel from EEG.marks
     markerFlagInd = find(strcmpi('marker', {EEG.marks.chan_info.label}));
+
+    if length(markerFlagInd) == 0
+        markerFlagInd = find(strcmpi('marker', {EEG.chanlocs.labels}));
+    end
+
     try
         markerInd = find(EEG.marks.chan_info(markerFlagInd).flags);
     catch
         markerInd = NaN;
-        warning('Could not identify marker channel based on EEG.marks. Did not find a flag with label ''marker''.')
+        warning('Could not identify marker channel based on EEG.marks or EEG.chanlocs.labels. Did not find a flag or channel with label ''marker''.')
     end
 else
     warning('EEG.marks structure not found. Will create a new data set for every channel.')
