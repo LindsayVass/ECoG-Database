@@ -1,12 +1,15 @@
-function mergedEEG = mergeCleanedDatasets(eegPaths)
+function mergedEEG = mergeCleanedDatasets(eegPaths, markerPath)
 % Given a cell array of paths to clean EEG data sets, load all data sets,
 % and merge them together, keeping only time points which are clean across
 % all data sets.
 %
-% >> mergedEEG = mergeCleanedDatasets(eegPaths)
+% >> mergedEEG = mergeCleanedDatasets(eegPaths, markerPath)
 %
 % Input:
 %   eegPaths: cell array of paths to cleaned EEG data sets
+%
+% Optional Input:
+%   markerPath: path to the marker channel data set
 %
 % Output:
 %   mergedEEG: EEGLAB struct containing all cleaned data
@@ -40,6 +43,7 @@ mergedEEG.data = zeros(length(EEG), size(EEG(1).data, 2), size(EEG(1).data, 3));
 for thisEEG = 1:length(EEG)
     mergedEEG.data(thisEEG, :, :) = EEG(thisEEG).data;
     mergedEEG.chanlocs(thisEEG) = EEG(thisEEG).chanlocs;
+    mergedEEG.chanlocs(thisEEG).index = thisEEG;
 end
 
 mergedEEG.chan_history = [];
@@ -104,4 +108,22 @@ end
 
 %% convert back to continuous dataset from epoched dataset
 mergedEEG = marks_epochs2continuous_LKV(mergedEEG);
+
+%% add marker data if it exists
+if exist('markerPath', 'var')
+    EEG = pop_loadset(markerPath);
+    EEG = marks_epochs2continuous_LKV(EEG);
+    markerInd = size(mergedEEG.data, 1) + 1;
+    mergedEEG.data(markerInd, :) = EEG.data(1, :);
+    mergedEEG.chanlocs(markerInd).labels = EEG.chanlocs(1).labels;
+    mergedEEG.chanlocs(markerInd).index = markerInd;
+    if isfield(EEG, 'artifact_history')
+        mergedEEG.channel_artifact_history(markerInd).electrode_name = EEG.chanlocs(1).labels;
+        mergedEEG.channel_artifact_history(markerInd).electrode_ind = markerInd;
+        if isfield(mergedEEG, 'channel_artifact_history')
+            mergedEEG.channel_artifact_history(markerInd).artifact_history = EEG.artifact_history;
+        end
+    end
+end
+
 
