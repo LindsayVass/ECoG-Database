@@ -60,16 +60,16 @@ fileList = cell(length(goodChans), 1);
 % make new data sets for all good channels
 for thisChan = 1:length(goodChans)
     chanInd = goodChans(thisChan);
-    outputPath = makeNewDataset(EEG, chanInd);
+    outputPath = makeNewDataset(EEG, chanInd, outputDir, outputStem);
     fileList{thisChan} = outputPath;
 end
 
 % make new data set for marker channel
 if ~isnan(markerInd)
-    markerPath = makeNewDataset(EEG, markerInd);
+    markerPath = makeNewDataset(EEG, markerInd, outputDir, outputStem);
 end
 
-function outputPath = makeNewDataset(EEG, chanInd)
+function outputPath = makeNewDataset(EEG, chanInd, outputDir, outputStem)
 % initialize new EEG structure
 newEEG = EEG;
 
