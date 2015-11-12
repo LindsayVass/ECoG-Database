@@ -23,7 +23,7 @@ function [fileList, markerPath] = splitAndCleanDataset(EEG, outputDir, outputSte
 %       = 5)
 %
 % Outputs:
-%   fileList: cell array of strings containing the path to each of the newly 
+%   fileList: cell array of strings containing the path to each of the newly
 %       created datasets
 %   markerPath: path to the marker channel; for this to return valid
 %       information, you must designate the marker channel either in
@@ -74,3 +74,14 @@ for thisEEG = 1:length(splitLog)
     fileList{thisEEG} = outName;
     pop_saveset(markedEEG, outName);
 end
+
+% split the marker data
+if exist(markerPath, 'file')
+    % epoch the data
+    EEG = pop_loadset(markerPath);
+    EEG = marks_continuous2epochs_LKV(EEG, 'recurrence', epochSecs, 'limits', [0 epochSecs]);
+    
+    % save
+    markerPath = [outputDirClean outputStem EEG.chanlocs(1).labels '.set'];
+    pop_saveset(EEG, markerPath);
+end    
