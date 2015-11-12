@@ -106,6 +106,42 @@ for thisEEG = 1:length(EEG)
     end
 end
 
+%% update rereference history
+for thisEEG = 1:length(EEG)
+    if isfield(EEG(thisEEG), 'reref')
+        mergedEEG.channel_reref_history(thisEEG).electrode_name = EEG(thisEEG).chanlocs(1).labels;
+        mergedEEG.channel_reref_history(thisEEG).electrode_ind  = thisEEG;
+        mergedEEG.channel_reref_history(thisEEG).reref          = EEG(thisEEG).reref;
+    end
+end
+
+% Prepare a string to submit to isequal later (will test whether all
+% EEG.reref structures are identical)
+eqTestString = '';
+for thisEEG = 1:length(EEG)
+    if isfield(EEG(thisEEG), 'reref')
+        if thisEEG == length(EEG);
+            eqTestString = [eqTestString 'EEG(' num2str(thisEEG) ').reref'];
+        else
+            eqTestString = [eqTestString 'EEG(' num2str(thisEEG) ').reref, '];
+        end
+    else % reref structures are not equal if one doesn't exist
+        eqTestString = '';
+        return
+    end
+end
+
+% Test whether all EEG.reref structs are equal
+if ~strcmpi(eqTestString, '')
+    eqTest = eval(['isequal(' sprintf(eqTestString) ')']);
+    if eqTest
+        mergedEEG.reref = EEG(1).reref;
+    else
+        mergedEEG.reref.scheme = 'Mixed - See channel_reref_history';
+        mergedEEG.reref.date = [];
+        mergedEEG.reref.chan = [];
+    end
+end
 %% convert back to continuous dataset from epoched dataset
 mergedEEG = marks_epochs2continuous_LKV(mergedEEG);
 
@@ -125,5 +161,11 @@ if exist('markerPath', 'var')
         end
     end
 end
+
+%% update struct
+mergedEEG.urevent = [];
+mergedEEG.setname = 'Merged';
+mergedEEG.filepath = '';
+mergedEEG.filename = '';
 
 
