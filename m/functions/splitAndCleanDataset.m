@@ -1,11 +1,11 @@
-function log = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD)
+function [fileList, markerPath] = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD)
 % Take an EEG structure containing 1 or more channels, split it into
 % separate data sets for each channel, and clean each channel. Each
 % channel's data will be split into contiguous epochs (length = epochSecs)
 % and epochs containing extreme values (>numSD above or below the mean for
 % that channel) will be flagged as bad.
 %
-% >> log = splitAndCleanDataset(EEG, outputDir, outputStem)
+% >> [fileList, markerPath] = splitAndCleanDataset(EEG, outputDir, outputStem)
 %
 % Inputs:
 %   EEG: EEG structure to be cleaned
@@ -22,9 +22,11 @@ function log = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD
 %       threshold for identifying epochs containing extreme values (default
 %       = 5)
 %
-% Output:
-%   log: cell array of strings containing the path to each of the newly 
+% Outputs:
+%   fileList: cell array of strings containing the path to each of the newly 
 %       created datasets
+%   markerPath: path to the marker channel (must be designated in the marks
+%       structure with label 'marker' for this to return data)
 
 if nargin < 5
     numSD = 5;
@@ -46,7 +48,7 @@ end
 outputDirOrig = [outputDir 'dirty_unepoched/'];
 
 % split data set into one for each channel
-splitLog = splitDataset(EEG, outputDirOrig, outputStem);
+[splitLog, markerPath] = splitDataset(EEG, outputDirOrig, outputStem);
 
 % prep output dir
 if ~exist('outputDirNoSpace', 'var')
@@ -57,7 +59,7 @@ outputDirCleanNoSpace = [outputDirNoSpace 'clean_epoched/'];
 system(['mkdir ' outputDirCleanNoSpace]);
 
 % initialize output log
-log = cell(size(splitLog));
+fileList = cell(size(splitLog));
 
 % clean each channel's data
 for thisEEG = 1:length(splitLog)
@@ -66,7 +68,7 @@ for thisEEG = 1:length(splitLog)
     [~, markedEEG] = cleanDataset(EEG, epochSecs, numSD);
     
     % save
-    outName      = [outputDirClean outputStem EEG.chanlocs(1).labels '_marked.set'];
-    log{thisEEG} = outName;
+    outName = [outputDirClean outputStem EEG.chanlocs(1).labels '_marked.set'];
+    fileList{thisEEG} = outName;
     pop_saveset(markedEEG, outName);
 end
