@@ -50,7 +50,7 @@ for thisChan = 1:length(goodChans)
     % initialize new EEG structure
     newEEG = EEG;
     
-    thisChanName = EEG.chanlocs(thisChan).labels;
+    thisChanName = EEG.chanlocs(goodChans(thisChan)).labels;
     outputPath = [outputDir outputStem thisChanName '.set'];
     log{thisChan} = outputPath;
     
@@ -59,9 +59,9 @@ for thisChan = 1:length(goodChans)
     newEEG.filepath = outputPath;
     newEEG.nbchan   = 1;
     newEEG.data     = [];
-    newEEG.data     = EEG.data(thisChan, :);
+    newEEG.data     = EEG.data(goodChans(thisChan), :);
     newEEG.chanlocs = [];
-    newEEG.chanlocs = EEG.chanlocs(thisChan);
+    newEEG.chanlocs = EEG.chanlocs(goodChans(thisChan));
     newEEG.datfile  = [outputStem thisChanName '.fdt'];
     
     % update chan_history
