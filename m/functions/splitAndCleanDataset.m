@@ -25,8 +25,10 @@ function [fileList, markerPath] = splitAndCleanDataset(EEG, outputDir, outputSte
 % Outputs:
 %   fileList: cell array of strings containing the path to each of the newly 
 %       created datasets
-%   markerPath: path to the marker channel (must be designated in the marks
-%       structure with label 'marker' for this to return data)
+%   markerPath: path to the marker channel; for this to return valid
+%       information, you must designate the marker channel either in
+%       EEG.chanlocs.labels (i.e., one channel is named 'marker') or by
+%       flagging it in EEG.marks (i.e., flag label is 'marker')
 
 if nargin < 5
     numSD = 5;
