@@ -125,9 +125,6 @@ epochSecs = 1;
 numSD     = 5;
 [fileList, markerPath, samplesToTrim] = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD);
 
-% Once the data has been separated out by channel, you can recombine it as
-% you see fit. 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % OPTION 1: Recombine all channels %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
