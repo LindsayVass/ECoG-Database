@@ -12,18 +12,25 @@ id = makeIdStruct(subjID, 'LV');
 
 eeglab;
 
-%% load raw .mat data from houston
+%% load raw data 
 
+% HOUSTON
 % path to nkdata .mat file
 rawMat  = [subjDir 'ECoG_data/Retrieval_data_uncorr/ts071_EkstromRetrievalUncorr_sEEG.mat'];
 load(rawMat);
 
-%% convert from nkdata structure to EEGLAB structure
 EEG = nkdata2eeg(nkdata);
 clear nkdata;
 eeglab redraw;
 
-%% save raw data as EEG mat
+% SACRAMENTO
+% path to .edf file
+rawEDF = [subjDir 'RawData/UCDMC14_020415_teleporter.edf'];
+
+EEG = edf2eeg(rawEDF, subjID);
+eeglab redraw;
+
+%% save raw data 
 preprocDir = [subjDir 'PreProcessing'];
 if ~exist(preprocDir, 'dir')
     mkdir(preprocDir);
