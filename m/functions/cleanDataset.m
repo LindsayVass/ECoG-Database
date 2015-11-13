@@ -1,4 +1,4 @@
-function [channelStats, markedEEG] = cleanDataset(EEG, epochSecs, numSD)
+function [channelStats, markedEEG, samplesToTrim] = cleanDataset(EEG, epochSecs, numSD)
 % Mark artifacts in a one-channel dataset. This function will first
 % calculate the mean and standard deviation for this particular channel. It
 % will then epoch the data into short contiguous epochs (length =
@@ -7,7 +7,7 @@ function [channelStats, markedEEG] = cleanDataset(EEG, epochSecs, numSD)
 % return a marked EEG dataset as well as channel statistics (mean, SD,
 % threshold, number & percent of marked epochs).
 %
-% >> [channelStats, markedEEG] = cleanDataset(EEG, epochSecs, numSD)
+% >> [channelStats, markedEEG, samplesToTrim] = cleanDataset(EEG, epochSecs, numSD)
 %
 % Input:
 %   EEG: EEGLAB struct containing ONE CHANNEL ONLY
@@ -23,6 +23,9 @@ function [channelStats, markedEEG] = cleanDataset(EEG, epochSecs, numSD)
 %       number of flagged epochs, and percent of flagged epochs
 %   markedEEG; EEGLAB struct containing epoched data and updated marks
 %       structure reflecting bad epochs
+%   samplesToTrim: if the data set does not divide evenly into epochs of
+%       length epochSecs, it will be padded with NaN; this value indicates
+%       how many samples to trim later to return it to the original size
 
 % check that dataset is only one channel
 if (size(EEG.data, 1) > 1)
@@ -46,6 +49,21 @@ chanLow  = chanMean - numSD * chanSD;
 
 % prepare channelStats structure
 channelStats = struct('Mean', chanMean, 'SD', chanSD, 'EpochSecs', epochSecs, 'ThresholdSD', numSD, 'NumBadEpochs', [], 'TotalEpochs', [], 'PercentBadEpochs', [], 'BadEpochInds', []);
+
+% check if data set length divides evenly by epochSecs (otherwise, will
+% lose time points); if it doesn't, pad with NaN
+epochSamples  = epochSecs * EEG.srate;
+sampsToAdd    = epochSamples - mod(size(EEG.data, 2), epochSamples);
+EEG.data      = cat(2, EEG.data, nan(1, sampsToAdd));
+EEG.pnts      = size(EEG.data, 2);
+EEG           = eeg_checkset(EEG);
+samplesToTrim = sampsToAdd;
+
+% initialize new marks structure
+if isfield(EEG, 'marks')
+    EEG = rmfield(EEG, 'marks');
+end
+EEG.marks = marks_init(size(EEG.data), 1);
 
 % create epoched dataset
 epochedEEG = marks_continuous2epochs_LKV(EEG, 'recurrence', epochSecs, 'limits', [0 epochSecs]);
