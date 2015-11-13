@@ -84,3 +84,6 @@ for thisLabel = 1:EEG.nbchan
     EEG.chan_history.good_chans(thisLabel).electrode_ind = thisLabel;
     EEG.chan_history.good_chans(thisLabel).electrode_name = {EEG.chanlocs(thisLabel).labels}';
 end
+
+% check EEG
+EEG = eeg_checkset(EEG);
