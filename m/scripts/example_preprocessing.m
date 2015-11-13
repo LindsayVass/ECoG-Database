@@ -116,21 +116,62 @@ outputStem = 'TS071_LV_C01_Ref_AllGoodChans_A00_';
 % epoch that contains extreme values, defined as a value that exceeds a
 % certain number of standard deviations away from the mean (threshold =
 % numSD). These marked and epoched files will be contained in a folder
-% called 'clean_epoched', also found in outputDir.
+% called 'clean_epoched', also found in outputDir. 
+%
+% If your data set does not divide evenly by epochSecs, it will pad the
+% data with NaN and return the number of samples to later trim when the
+% data is recombined (samplesToTrim).
 epochSecs = 1;
 numSD     = 5;
-[fileList, markerPath] = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD);
+[fileList, markerPath, samplesToTrim] = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD);
 
 % Once the data has been separated out by channel, you can recombine it as
 % you see fit. 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% OPTION 1: Recombine all channels %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % To recombine all channels back into one file:
 % Note that any time point flagged as bad for one channel will be flagged
 % as bad for ALL channels, so you will probably lose a LOT of data this
 % way.
-mergedEEG = mergeCleanedDatasets(fileList, markerPath);
+mergedEEG = mergeCleanedDatasets(fileList, samplesToTrim, markerPath);
 fprintf('\n\n%0.1f%% of the data set marked as an artifact.\n', mergedEEG.artifact_history.artifacts.PercentBadEpochs)
 
 % view time points marked for rejection
 mergedEEG = pop_vised(mergedEEG);
+
+% save 
+savePath = [outputDir outputStem 'merged_clean.set'];
+pop_saveset(mergedEEG, savePath);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% OPTION 2: Recombine channels on the same strip/grid/depth %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% For this to work, channels on the same strip must have the same string
+% (e.g., LAD1, LAD2, LAD3 all share 'LAD')
+fileList = mergeDatasetsByStrip(fileList, samplesToTrim, markerPath);
+
+% view time points marked for rejection (do for each strip by changing the
+% number in fileList{1} below
+EEG = pop_loadset(fileList{1});
+EEG = pop_vised(EEG);
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% OPTION 3: Recombine custom channels %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% First, create a cell array of paths to each of the datasets you want to
+% combine, e.g...
+chanInds = [1,2,3,20,21,22];
+eegPaths = fileList(chanInds);
+
+% Then use same code as Option 1
+mergedEEG = mergeCleanedDatasets(eegPaths, samplesToTrim, markerPath);
+
+% view time points marked for rejection
+mergedEEG = pop_vised(mergedEEG);
+
+% save 
+savePath = [outputDir outputStem 'merged_clean.set'];
+pop_saveset(mergedEEG, savePath);
 
