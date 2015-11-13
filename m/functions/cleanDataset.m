@@ -54,7 +54,7 @@ channelStats = struct('Mean', chanMean, 'SD', chanSD, 'EpochSecs', epochSecs, 'T
 % lose time points); if it doesn't, pad with NaN
 epochSamples  = epochSecs * EEG.srate;
 sampsToAdd    = epochSamples - mod(size(EEG.data, 2), epochSamples);
-EEG.data      = cat(2, EEG.data, nan(1, sampsToAdd));
+EEG.data      = cat(2, EEG.data, nan(1, sampsToAdd + 1));
 EEG.pnts      = size(EEG.data, 2);
 EEG           = eeg_checkset(EEG);
 samplesToTrim = sampsToAdd;
