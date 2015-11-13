@@ -119,7 +119,7 @@ outputStem = 'TS071_LV_C01_Ref_AllGoodChans_A00_';
 % called 'clean_epoched', also found in outputDir.
 epochSecs = 1;
 numSD     = 5;
-fileList  = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD);
+[fileList, markerPath] = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD);
 
 % Once the data has been separated out by channel, you can recombine it as
 % you see fit. 
@@ -128,7 +128,7 @@ fileList  = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD);
 % Note that any time point flagged as bad for one channel will be flagged
 % as bad for ALL channels, so you will probably lose a LOT of data this
 % way.
-mergedEEG = mergeCleanedDatasets(fileList);
+mergedEEG = mergeCleanedDatasets(fileList, markerPath);
 fprintf('\n\n%0.1f%% of the data set marked as an artifact.\n', mergedEEG.artifact_history.artifacts.PercentBadEpochs)
 
 % view time points marked for rejection
