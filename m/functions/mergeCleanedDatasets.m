@@ -171,12 +171,12 @@ if ~strcmpi(eqChanTestString, '')
     end
 end
 %% convert back to continuous dataset from epoched dataset
-mergedEEG = marks_epochs2continuous_LKV(mergedEEG);
+mergedEEG = marks_epochs2continuous(mergedEEG);
 
 %% add marker data if it exists
 if exist('markerPath', 'var')
     EEG = pop_loadset(markerPath);
-    EEG = marks_epochs2continuous_LKV(EEG);
+    EEG = marks_epochs2continuous(EEG);
     markerInd = size(mergedEEG.data, 1) + 1;
     mergedEEG.data(markerInd, :) = EEG.data(1, :);
     mergedEEG.chanlocs(markerInd).labels = EEG.chanlocs(1).labels;
