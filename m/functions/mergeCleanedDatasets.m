@@ -186,6 +186,22 @@ if exist('markerPath', 'var')
             mergedEEG.channel_artifact_history(markerInd).artifact_history = EEG.artifact_history;
         end
     end
+    
+    mergedEEG.nbchan = size(mergedEEG.data, 1);
+    
+    % update existing chan_info marks
+    for thisMark = 1:length(mergedEEG.marks.chan_info)
+        if size(mergedEEG.marks.chan_info(thisMark).flags, 1) ~= mergedEEG.nbchan
+            mergedEEG.marks.chan_info(thisMark).flags(markerInd) = 0;
+        end
+    end
+    
+    % update marker chan_info mark
+    tmpFlags = zeros(mergedEEG.nbchan, 1);
+    tmpFlags(markerInd) = 1;
+    flagOrder = max([mergedEEG.marks.chan_info.order]) + 1;
+    mergedEEG.marks = marks_add_label(mergedEEG.marks, 'chan_info', {'marker', [1 0 0], [1 0 0], flagOrder, tmpFlags});
+        
 end
 
 %% update struct
