@@ -202,6 +202,9 @@ if exist('markerPath', 'var')
     tmpFlags = zeros(mergedEEG.nbchan, 1);
     tmpFlags(markerInd) = 1;
     flagOrder = max([mergedEEG.marks.chan_info.order]) + 1;
+    if flagOrder == 0
+        flagOrder = 1;
+    end
     mergedEEG.marks = marks_add_label(mergedEEG.marks, 'chan_info', {'marker', [1 0 0], [1 0 0], flagOrder, tmpFlags});
     
 end
