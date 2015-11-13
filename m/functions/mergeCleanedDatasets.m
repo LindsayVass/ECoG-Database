@@ -7,7 +7,7 @@ function mergedEEG = mergeCleanedDatasets(eegPaths, samplesToTrim, markerPath)
 %
 % Inputs:
 %   eegPaths: cell array of paths to cleaned EEG data sets
-%   samplesToTrim: number of sampels to trim from the dataset (i.e., the
+%   samplesToTrim: number of samples to trim from the dataset (i.e., the
 %       number of NaNs the data set was padded with)
 %
 % Optional Input:
