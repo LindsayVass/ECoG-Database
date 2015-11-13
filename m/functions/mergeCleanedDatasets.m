@@ -117,29 +117,55 @@ end
 
 % Prepare a string to submit to isequal later (will test whether all
 % EEG.reref structures are identical)
-eqTestString = '';
+eqSchemeTestString = '';
+eqDateTestString   = '';
+eqChanTestString   = '';
 for thisEEG = 1:length(EEG)
     if isfield(EEG(thisEEG), 'reref')
         if thisEEG == length(EEG);
-            eqTestString = [eqTestString 'EEG(' num2str(thisEEG) ').reref'];
+            eqSchemeTestString = [eqSchemeTestString 'EEG(' num2str(thisEEG) ').reref.scheme'];
+            eqDateTestString   = [eqDateTestString 'EEG(' num2str(thisEEG) ').reref.date'];
+            eqChanTestString   = [eqChanTestString 'EEG(' num2str(thisEEG) ').reref.chan'];
         else
-            eqTestString = [eqTestString 'EEG(' num2str(thisEEG) ').reref, '];
+            eqSchemeTestString = [eqSchemeTestString 'EEG(' num2str(thisEEG) ').reref.scheme, '];
+            eqDateTestString   = [eqDateTestString 'EEG(' num2str(thisEEG) ').reref.date, '];
+            eqChanTestString   = [eqChanTestString 'EEG(' num2str(thisEEG) ').reref.chan, '];
         end
     else % reref structures are not equal if one doesn't exist
-        eqTestString = '';
+        eqSchemeTestString = '';
+        eqDateTestString   = '';
+        eqChanTestString   = '';
         return
     end
 end
 
-% Test whether all EEG.reref structs are equal
-if ~strcmpi(eqTestString, '')
-    eqTest = eval(['isequal(' sprintf(eqTestString) ')']);
-    if eqTest
-        mergedEEG.reref = EEG(1).reref;
+% Test whether all EEG.reref.scheme are equal
+if ~strcmpi(eqSchemeTestString, '')
+    eqSchemeTest = eval(['isequal(' sprintf(eqSchemeTestString) ')']);
+    if eqSchemeTest
+        mergedEEG.reref.scheme = EEG(1).reref.scheme;
     else
         mergedEEG.reref.scheme = 'Mixed - See channel_reref_history';
-        mergedEEG.reref.date = [];
-        mergedEEG.reref.chan = [];
+    end
+end
+
+% Test whether all EEG.reref.date are equal
+if ~strcmpi(eqDateTestString, '')
+    eqDateTest = eval(['isequal(' sprintf(eqDateTestString) ')']);
+    if eqDateTest
+        mergedEEG.reref.date = EEG(1).reref.date;
+    else
+        mergedEEG.reref.date = 'Mixed - See channel_reref_history';
+    end
+end
+
+% Test whether all EEG.reref.chan are equal
+if ~strcmpi(eqChanTestString, '')
+    eqChanTest = eval(['isequal(' sprintf(eqChanTestString) ')']);
+    if eqChanTest
+        mergedEEG.reref.chan = EEG(1).reref.chan;
+    else
+        mergedEEG.reref.chan = 'Mixed - See channel_reref_history';
     end
 end
 %% convert back to continuous dataset from epoched dataset
