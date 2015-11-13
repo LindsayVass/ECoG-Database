@@ -103,11 +103,5 @@ newEEG.chan_history(histInd).good_chans.electrode_name = thisChanName;
 newEEG.chan_history(histInd).good_chans.electrode_ind = 1;
 newEEG.chan_history(histInd).bad_chans = [];
 
-% initialize new marks structure
-if isfield(newEEG, 'marks')
-    newEEG = rmfield(newEEG, 'marks');
-end
-newEEG.marks = marks_init(size(newEEG.data), 1);
-
 % save new dataset
 pop_saveset(newEEG, outputPath);
