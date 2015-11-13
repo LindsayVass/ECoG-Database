@@ -1,12 +1,14 @@
-function mergedEEG = mergeCleanedDatasets(eegPaths, markerPath)
+function mergedEEG = mergeCleanedDatasets(eegPaths, samplesToTrim, markerPath)
 % Given a cell array of paths to clean EEG data sets, load all data sets,
 % and merge them together, keeping only time points which are clean across
 % all data sets.
 %
-% >> mergedEEG = mergeCleanedDatasets(eegPaths, markerPath)
+% >> mergedEEG = mergeCleanedDatasets(eegPaths, samplesToTrim, markerPath)
 %
-% Input:
+% Inputs:
 %   eegPaths: cell array of paths to cleaned EEG data sets
+%   samplesToTrim: number of sampels to trim from the dataset (i.e., the
+%       number of NaNs the data set was padded with)
 %
 % Optional Input:
 %   markerPath: path to the marker channel data set
@@ -202,6 +204,19 @@ if exist('markerPath', 'var')
     flagOrder = max([mergedEEG.marks.chan_info.order]) + 1;
     mergedEEG.marks = marks_add_label(mergedEEG.marks, 'chan_info', {'marker', [1 0 0], [1 0 0], flagOrder, tmpFlags});
         
+end
+
+%% trim NaN padding
+% make sure there's no real data where we're expecting NaNs
+beginTrim = size(mergedEEG.data, 2) - samplesToTrim + 1;
+if any(~isnan(mergedEEG.data(:, beginTrim:end)))
+    error('Data to be trimmed contains real values, not just NaN.')
+end
+mergedEEG.data(:, beginTrim:end) = [];
+mergedEEG.pnts = size(mergedEEG.data, 2);
+mergedEEG = eeg_checkset(mergedEEG);
+for thisFlag = 1:length(mergedEEG.marks.time_info)
+    mergedEEG.marks.time_info(thisFlag).flags(beginTrim:end) = [];
 end
 
 %% update struct
