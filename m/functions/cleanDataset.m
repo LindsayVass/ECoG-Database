@@ -66,7 +66,7 @@ end
 EEG.marks = marks_init(size(EEG.data), 1);
 
 % create epoched dataset
-epochedEEG = marks_continuous2epochs_LKV(EEG, 'recurrence', epochSecs, 'limits', [0 epochSecs]);
+epochedEEG = marks_continuous2epochs(EEG, 'recurrence', epochSecs, 'limits', [0 epochSecs]);
 
 % identify bad epochs
 [markedEEG, ind] = pop_eegthresh(epochedEEG, 1, 1, chanLow, chanHigh, 0, epochSecs, 1, 0);

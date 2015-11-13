@@ -93,7 +93,7 @@ if exist(markerPath, 'file')
     end
     EEG.marks = marks_init(size(EEG.data), 1);
     
-    EEG = marks_continuous2epochs_LKV(EEG, 'recurrence', epochSecs, 'limits', [0 epochSecs]);
+    EEG = marks_continuous2epochs(EEG, 'recurrence', epochSecs, 'limits', [0 epochSecs]);
     
     % save
     markerPath = [outputDirClean outputStem EEG.chanlocs(1).labels '.set'];
