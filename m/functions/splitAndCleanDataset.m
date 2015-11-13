@@ -1,4 +1,4 @@
-function [fileList, markerPath] = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD)
+function [fileList, markerPath, samplesToTrim] = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD)
 % Take an EEG structure containing 1 or more channels, split it into
 % separate data sets for each channel, and clean each channel. Each
 % channel's data will be split into contiguous epochs (length = epochSecs)
@@ -29,6 +29,9 @@ function [fileList, markerPath] = splitAndCleanDataset(EEG, outputDir, outputSte
 %       information, you must designate the marker channel either in
 %       EEG.chanlocs.labels (i.e., one channel is named 'marker') or by
 %       flagging it in EEG.marks (i.e., flag label is 'marker')
+%   samplesToTrim: if the data set does not divide evenly into epochs of
+%       length epochSecs, it will be padded with NaN; this value indicates
+%       how many samples to trim later to return it to the original size
 
 if nargin < 5
     numSD = 5;
@@ -67,7 +70,7 @@ fileList = cell(size(splitLog));
 for thisEEG = 1:length(splitLog)
     % clean file
     EEG = pop_loadset(splitLog{thisEEG});
-    [~, markedEEG] = cleanDataset(EEG, epochSecs, numSD);
+    [~, markedEEG, samplesToTrim] = cleanDataset(EEG, epochSecs, numSD);
     
     % save
     outName = [outputDirClean outputStem EEG.chanlocs(1).labels '_marked.set'];
@@ -77,11 +80,22 @@ end
 
 % split the marker data
 if exist(markerPath, 'file')
+    
     % epoch the data
     EEG = pop_loadset(markerPath);
+    EEG.data = cat(2, EEG.data, nan(1, samplesToTrim + 1));
+    EEG.pnts = size(EEG.data, 2);
+    EEG = eeg_checkset(EEG);
+    
+    % initialize new marks structure
+    if isfield(EEG, 'marks')
+        EEG = rmfield(EEG, 'marks');
+    end
+    EEG.marks = marks_init(size(EEG.data), 1);
+    
     EEG = marks_continuous2epochs_LKV(EEG, 'recurrence', epochSecs, 'limits', [0 epochSecs]);
     
     % save
     markerPath = [outputDirClean outputStem EEG.chanlocs(1).labels '.set'];
     pop_saveset(EEG, markerPath);
-end    
+end
