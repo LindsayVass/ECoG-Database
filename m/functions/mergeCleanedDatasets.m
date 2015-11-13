@@ -203,20 +203,22 @@ if exist('markerPath', 'var')
     tmpFlags(markerInd) = 1;
     flagOrder = max([mergedEEG.marks.chan_info.order]) + 1;
     mergedEEG.marks = marks_add_label(mergedEEG.marks, 'chan_info', {'marker', [1 0 0], [1 0 0], flagOrder, tmpFlags});
-        
+    
 end
 
 %% trim NaN padding
 % make sure there's no real data where we're expecting NaNs
-beginTrim = size(mergedEEG.data, 2) - samplesToTrim + 1;
-if any(~isnan(mergedEEG.data(:, beginTrim:end)))
-    error('Data to be trimmed contains real values, not just NaN.')
-end
-mergedEEG.data(:, beginTrim:end) = [];
-mergedEEG.pnts = size(mergedEEG.data, 2);
-mergedEEG = eeg_checkset(mergedEEG);
-for thisFlag = 1:length(mergedEEG.marks.time_info)
-    mergedEEG.marks.time_info(thisFlag).flags(beginTrim:end) = [];
+if samplesToTrim > 0
+    beginTrim = size(mergedEEG.data, 2) - samplesToTrim + 1;
+    if any(~isnan(mergedEEG.data(:, beginTrim:end)))
+        error('Data to be trimmed contains real values, not just NaN.')
+    end
+    mergedEEG.data(:, beginTrim:end) = [];
+    mergedEEG.pnts = size(mergedEEG.data, 2);
+    mergedEEG = eeg_checkset(mergedEEG);
+    for thisFlag = 1:length(mergedEEG.marks.time_info)
+        mergedEEG.marks.time_info(thisFlag).flags(beginTrim:end) = [];
+    end
 end
 
 %% update struct
