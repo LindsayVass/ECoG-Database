@@ -81,6 +81,9 @@ mergedEEG = rmfield(mergedEEG, 'marks');
 mergedEEG = reject2marks(mergedEEG);
 
 %% update artifact_history
+if isfield(mergedEEG, 'artifact_history')
+    mergedEEG = rmfield(mergedEEG, 'artifact_history');
+end
 mergedEEG.artifact_history.date                       = datestr(now);
 mergedEEG.artifact_history.type                       = 'Merged Artifacts';
 mergedEEG.artifact_history.artifacts.Mean             = NaN;
