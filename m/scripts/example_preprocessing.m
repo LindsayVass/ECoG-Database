@@ -130,7 +130,7 @@ outputStem = 'TS071_LV_C01_Ref_AllGoodChans_A00_';
 % data is recombined (samplesToTrim).
 epochSecs = 1;
 numSD     = 5;
-[fileList, markerPath, samplesToTrim] = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD);
+[splitFileList, markerPath, samplesToTrim] = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % OPTION 1: Recombine all channels %
@@ -139,7 +139,7 @@ numSD     = 5;
 % Note that any time point flagged as bad for one channel will be flagged
 % as bad for ALL channels, so you will probably lose a LOT of data this
 % way.
-mergedEEG = mergeCleanedDatasets(fileList, samplesToTrim, markerPath);
+mergedEEG = mergeCleanedDatasets(splitFileList, samplesToTrim, markerPath);
 fprintf('\n\n%0.1f%% of the data set marked as an artifact.\n', mergedEEG.artifact_history.artifacts.PercentBadEpochs)
 
 % view time points marked for rejection
@@ -154,11 +154,11 @@ pop_saveset(mergedEEG, savePath);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % For this to work, channels on the same strip must have the same string
 % (e.g., LAD1, LAD2, LAD3 all share 'LAD')
-fileList = mergeDatasetsByStrip(fileList, samplesToTrim, markerPath);
+mergeFileList = mergeDatasetsByStrip(splitFileList, samplesToTrim, outputDir, outputStem, markerPath);
 
 % view time points marked for rejection (do for each strip by changing the
 % number in fileList{1} below
-EEG = pop_loadset(fileList{1});
+EEG = pop_loadset(mergeFileList{1});
 EEG = pop_vised(EEG);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -167,7 +167,7 @@ EEG = pop_vised(EEG);
 % First, create a cell array of paths to each of the datasets you want to
 % combine, e.g...
 chanInds = [1,2,3,20,21,22];
-eegPaths = fileList(chanInds);
+eegPaths = splitFileList(chanInds);
 
 % Then use same code as Option 1
 mergedEEG = mergeCleanedDatasets(eegPaths, samplesToTrim, markerPath);
