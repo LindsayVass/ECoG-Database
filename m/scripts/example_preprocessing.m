@@ -146,14 +146,15 @@ fprintf('\n\n%0.1f%% of the data set marked as an artifact.\n', mergedEEG.artifa
 mergedEEG = pop_vised(mergedEEG);
 
 % save 
-savePath = [outputDir outputStem 'merged_clean.set'];
+savePath = [outputDir 'marked_merged/' outputStem 'merged_clean.set'];
 pop_saveset(mergedEEG, savePath);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % OPTION 2: Recombine channels on the same strip/grid/depth %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % For this to work, channels on the same strip must have the same string
-% (e.g., LAD1, LAD2, LAD3 all share 'LAD')
+% (e.g., LAD1, LAD2, LAD3 all share 'LAD'). Will be saved to a directory
+% within outputDir called 'marked_merged'.
 mergeFileList = mergeDatasetsByStrip(splitFileList, samplesToTrim, outputDir, outputStem, markerPath);
 
 % view time points marked for rejection (do for each strip by changing the
