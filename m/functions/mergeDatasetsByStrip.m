@@ -39,6 +39,14 @@ if strcmpi(outputStem(end), '_') == 0
     outputStem = [outputStem '_'];
 end
 
+outputDirMerged = [outputDir 'marked_merged/'];
+
+if ~exist('outputDirNoSpace', 'var')
+     outputDirNoSpace = strrep(outputDir, ' ', '\ ');
+end
+outputDirMergedNoSpace = [outputDirNoSpace 'marked_merged/'];
+system(['mkdir ' outputDirMergedNoSpace]);
+
 %% get list of strips/depths/grids
 chanList = cell(size(eegPaths));
 for thisEEG = 1:length(eegPaths)
@@ -62,7 +70,10 @@ for thisStrip = 1:length(stripNames)
     end
     
     % save
-    savePath = [outputDir outputStem stripNames{thisStrip} '.set'];
+    savePath = [outputDirMerged outputStem stripNames{thisStrip} '.set'];
     pop_saveset(mergedEEG, savePath);
     fileList{thisStrip} = savePath;
 end
+
+% save file list
+save([outputDirMerged 'fileList.mat'], 'fileList');
