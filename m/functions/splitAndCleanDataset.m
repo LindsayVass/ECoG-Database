@@ -55,12 +55,17 @@ outputDirOrig = [outputDir 'dirty_unepoched/'];
 % split data set into one for each channel
 [splitLog, markerPath] = splitDataset(EEG, outputDirOrig, outputStem);
 
+% save splitLog
+fileList = splitLog;
+save([outputDirOrig 'fileList.mat'], 'fileList');
+clear fileList;
+
 % prep output dir
 if ~exist('outputDirNoSpace', 'var')
     outputDirNoSpace = strrep(outputDir, ' ', '\ ');
 end
-outputDirClean = [outputDir 'clean_epoched/'];
-outputDirCleanNoSpace = [outputDirNoSpace 'clean_epoched/'];
+outputDirClean = [outputDir 'marked_epoched/'];
+outputDirCleanNoSpace = [outputDirNoSpace 'marked_epoched/'];
 system(['mkdir ' outputDirCleanNoSpace]);
 
 % initialize output log
@@ -77,6 +82,9 @@ for thisEEG = 1:length(splitLog)
     fileList{thisEEG} = outName;
     pop_saveset(markedEEG, outName);
 end
+
+% save fileList
+save([outputDirClean 'fileList.mat'], 'fileList');
 
 % split the marker data
 if exist(markerPath, 'file')
@@ -98,4 +106,5 @@ if exist(markerPath, 'file')
     % save
     markerPath = [outputDirClean outputStem EEG.chanlocs(1).labels '.set'];
     pop_saveset(EEG, markerPath);
+    save([outputDirClean 'markerPath.mat'], 'markerPath');
 end
