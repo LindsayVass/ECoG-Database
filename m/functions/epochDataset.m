@@ -47,3 +47,18 @@ end
 for thisEvent = 1:length(eventLatencies)
     EEG.event = addExperimentEvent(EEG.event, eventLatencies(thisEvent), eventLabels{thisEvent});
 end
+
+% get indices of artifacts from EEG.marks
+marksInd = marks_label2index(EEG.marks.time_info, {EEG.marks.time_info.label}, 'indexes', 'exact', 'on');
+EEG = pop_marks_select_data(EEG, 'time marks', marksInd);
+
+% if artifacts overlap with experimental event, it will be removed
+% silently, so check for that now
+origLatency = cell2mat({EEG.event.latency});
+[missingLatency, missingInd] = intersect(origLatency, marksInd);
+noArtifactEpochs = [1:1:length(origLatency)]';
+noArtifactEpochs(missingInd) = [];
+
+% epoch data
+[EEG_epoch, goodEpochs] = pop_epoch(EEG, unique(eventLabels), [eStartSecs eEndSecs]);
+goodEpochs = noArtifactEpochs(goodEpochs);
