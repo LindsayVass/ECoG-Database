@@ -14,7 +14,10 @@ end
 
 %% load raw data 
 
-% HOUSTON
+%%%%%%%%%%%
+% HOUSTON %
+%%%%%%%%%%%
+
 % path to nkdata .mat file
 rawMat  = [subjDir 'ECoG_data/Retrieval_data_uncorr/ts071_EkstromRetrievalUncorr_sEEG.mat'];
 load(rawMat);
@@ -23,7 +26,14 @@ EEG = nkdata2eeg(nkdata);
 clear nkdata;
 eeglab redraw;
 
-% SACRAMENTO
+% save raw data 
+rawSavePath = [preprocDir subjID '_raw.set'];
+pop_saveset(EEG, rawSavePath);
+
+%%%%%%%%%%%%%%
+% SACRAMENTO %
+%%%%%%%%%%%%%%
+
 % path to .edf file
 rawEDF = [subjDir 'RawData/UCDMC14_020415_teleporter.edf'];
 
@@ -46,6 +56,9 @@ keyboard;
 chanSavePath = [preprocDir subjID '_chan_v1.set'];
 pop_saveset(EEG, chanSavePath);
 
+% modifications to the list of channels are stored in EEG.chan_history
+disp(EEG.chan_history(end));
+
 %% re-reference the data
 EEG = pop_loadset(chanSavePath);
 eeglab redraw;
@@ -54,6 +67,9 @@ eeglab redraw;
 % using all good channels %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 EEGreref = rerefAllGoodChans(EEG);
+
+% re-referencing details are stored in EEGreref.reref
+disp(EEGreref.reref);
 
 % view original data and rereferenced data together
 % original = blue
@@ -69,6 +85,9 @@ pop_saveset(EEGreref, rerefSavePath);
 % using mean of the strip/depth %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 EEGreref = rerefStrip(EEG);
+
+% re-referencing details are stored in EEGreref.reref
+disp(EEGreref.reref);
 
 % view original data and rereferenced data together
 % original = blue
@@ -86,6 +105,9 @@ pop_saveset(EEGreref, rerefSavePath);
 [EEGreref, B] = rerefBipolar(EEG);
 EEGreref.reref.origData = chanSavePath;
 
+% re-referencing details are stored in EEGreref.reref
+disp(EEGreref.reref);
+
 % save updated version
 rerefSavePath = [preprocDir subjID '_chan_v1_reref_bipolar.set'];
 pop_saveset(EEGreref, rerefSavePath);
@@ -100,7 +122,7 @@ save(bipolarFileName, 'B');
 EEG = pop_loadset(rerefSavePath);
 eeglab redraw;
 
-outputDir  = [preprocDir 'artifacts/'];
+outputDir  = [preprocDir 'artifact_detection/'];
 outputStem = 'TS071_chan_v1_reref_strip_';
 
 % Clean the data for each channel separately. This next function will first
@@ -120,6 +142,11 @@ epochSecs = 1;
 numSD     = 5;
 [splitFileList, markerPath, samplesToTrim] = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD);
 
+% The next step is to recombine the data from each individual channel.
+% There are three options for doing this, detailed below. In each case, the
+% merged data will be saved in a folder called 'marked_merged' in
+% outputDir.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % OPTION 1: Recombine all channels %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -133,6 +160,18 @@ mergeFileList = mergeAllDatasets(splitFileList, samplesToTrim, outputDir, output
 EEG = pop_loadset(mergeFileList{1});
 EEG = pop_vised(EEG);
 
+% details about the artifact removal are stored in EEG.artifact_history
+disp(EEG.artifact_history);
+disp(EEG.artifact_history.artifacts.PercentBadEpochs);
+
+% details about artifacts for each individual channel are stored in
+% EEG.channel_artifact_history
+disp(EEG.channel_artifact_history);
+
+% details about each individual channel's re-referencing scheme are stored
+% in EEG.channel_reref_history
+disp(EEG.channel_reref_history);
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % OPTION 2: Recombine channels on the same strip/grid/depth %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -145,6 +184,18 @@ mergeFileList = mergeDatasetsByStrip(splitFileList, samplesToTrim, outputDir, ou
 % number in fileList{1} below
 EEG = pop_loadset(mergeFileList{1});
 EEG = pop_vised(EEG);
+
+% details about the artifact removal are stored in EEG.artifact_history
+disp(EEG.artifact_history);
+disp(EEG.artifact_history.artifacts.PercentBadEpochs);
+
+% details about artifacts for each individual channel are stored in
+% EEG.channel_artifact_history
+disp(EEG.channel_artifact_history);
+
+% details about each individual channel's re-referencing scheme are stored
+% in EEG.channel_reref_history
+disp(EEG.channel_reref_history);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % OPTION 3: Recombine custom channels %
@@ -160,4 +211,16 @@ mergeFileList = mergeAllDatasets(eegPaths, samplesToTrim, outputDir, outputStem,
 % view time points marked for rejection 
 EEG = pop_loadset(mergeFileList{1});
 EEG = pop_vised(EEG);
+
+% details about the artifact removal are stored in EEG.artifact_history
+disp(EEG.artifact_history);
+disp(EEG.artifact_history.artifacts.PercentBadEpochs);
+
+% details about artifacts for each individual channel are stored in
+% EEG.channel_artifact_history
+disp(EEG.channel_artifact_history);
+
+% details about each individual channel's re-referencing scheme are stored
+% in EEG.channel_reref_history
+disp(EEG.channel_reref_history);
 
