@@ -139,15 +139,11 @@ numSD     = 5;
 % Note that any time point flagged as bad for one channel will be flagged
 % as bad for ALL channels, so you will probably lose a LOT of data this
 % way.
-mergedEEG = mergeCleanedDatasets(splitFileList, samplesToTrim, markerPath);
-fprintf('\n\n%0.1f%% of the data set marked as an artifact.\n', mergedEEG.artifact_history.artifacts.PercentBadEpochs)
+mergeFileList = mergeAllDatasets(splitFileList, samplesToTrim, outputDir, outputStem, markerPath);
 
-% view time points marked for rejection
-mergedEEG = pop_vised(mergedEEG);
-
-% save 
-savePath = [outputDir 'marked_merged/' outputStem 'merged_clean.set'];
-pop_saveset(mergedEEG, savePath);
+% view time points marked for rejection 
+EEG = pop_loadset(mergeFileList{1});
+EEG = pop_vised(EEG);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % OPTION 2: Recombine channels on the same strip/grid/depth %
