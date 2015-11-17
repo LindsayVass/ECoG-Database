@@ -25,6 +25,11 @@ if length(eventLatencies) ~= length(eventLabels)
     error('You must supply the same number of eventLatencies and eventLabels.')
 end
 
+% check that eventLabels is cell array of strings
+if ~iscellstr(eventLabels)
+    error('eventLabels must be a cell array of strings')
+end
+
 % check that all eventLatencies are valid
 if any(eventLatencies < 1)
     error('All eventLatencies must be greater than zero.')
@@ -36,4 +41,9 @@ end
 % check that eEndSecs is after eStartSecs
 if eEndSecs < eStartSecs
     error('eEndSecs must be later in time than eStartSecs')
+end
+
+% add experiment events to EEG.event
+for thisEvent = 1:length(eventLatencies)
+    EEG.event = addExperimentEvent(EEG.event, eventLatencies(thisEvent), eventLabels{thisEvent});
 end
