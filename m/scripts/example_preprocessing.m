@@ -1,16 +1,16 @@
 %% set up file naming
+eeglab;
 
 % experiment directory, contains a folder for each patient
 expDir = '/Users/Lindsay/Documents/ECoG Database/Sample Data/';
 
 % patient ID, same as name of patient folder (expDir/subjID)
-subjID  = 'TS071';
-subjDir = [expDir subjID '/'];
-
-% id structure
-id = makeIdStruct(subjID, 'LV');
-
-eeglab;
+subjID     = 'TS071';
+subjDir    = [expDir subjID '/'];
+preprocDir = [subjDir 'PreProcessing/'];
+if ~exist(preprocDir, 'dir')
+    mkdir(preprocDir);
+end
 
 %% load raw data 
 
@@ -30,30 +30,25 @@ rawEDF = [subjDir 'RawData/UCDMC14_020415_teleporter.edf'];
 EEG = edf2eeg(rawEDF, subjID);
 eeglab redraw;
 
-%% save raw data 
-preprocDir = [subjDir 'PreProcessing'];
-if ~exist(preprocDir, 'dir')
-    mkdir(preprocDir);
-end
+% save raw data 
+rawSavePath = [preprocDir subjID '_raw.set'];
+pop_saveset(EEG, rawSavePath);
 
-% save
-filePath = saveEEG(EEG, preprocDir, id);
-
-%% check for electrodes with gross signal artifacts
-EEG = pop_loadset(filePath);
+%% flag electrodes with gross signal artifacts
+EEG = pop_loadset(rawSavePath);
 eeglab redraw;
 
 % mark the marker channel and any obviously bad channels
 EEG = markBadChannels(EEG);
 keyboard;
 
-% update id
-id.channels = id.channels + 1;
-
 % save updated version
-filePath = saveEEG(EEG, preprocDir, id);
+chanSavePath = [preprocDir subjID '_chan_v1.set'];
+pop_saveset(EEG, chanSavePath);
 
 %% re-reference the data
+EEG = pop_loadset(chanSavePath);
+eeglab redraw;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 % using all good channels %
@@ -66,11 +61,9 @@ EEGreref = rerefAllGoodChans(EEG);
 % excluded channels = gray with gray/red triangle next to channel name
 EEG = pop_vised(EEG, 'data2', 'EEGreref.data');
 
-% update id
-id.rereference = EEGreref.reref.scheme;
-
 % save updated version
-filePath = saveEEG(EEGreref, preprocDir, id);
+rerefSavePath = [preprocDir subjID '_chan_v1_reref_all.set'];
+pop_saveset(EEGreref, rerefSavePath);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % using mean of the strip/depth %
@@ -83,23 +76,19 @@ EEGreref = rerefStrip(EEG);
 % excluded channels = gray with gray/red triangle next to channel name
 EEG = pop_vised(EEG, 'data2', 'EEGreref.data');
 
-% update id
-id.rereference = EEGreref.reref.scheme;
-
 % save updated version
-filePath = saveEEG(EEGreref, preprocDir, id);
+rerefSavePath = [preprocDir subjID '_chan_v1_reref_strip.set'];
+pop_saveset(EEGreref, rerefSavePath);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % using bi-polar referencing %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 [EEGreref, B] = rerefBipolar(EEG);
-EEGreref.reref.origData = [preprocDir 'TS071_LV_C01_Ref_Common_A00.set'];
-
-% update id
-id.rereference = EEGreref.reref.scheme;
+EEGreref.reref.origData = chanSavePath;
 
 % save updated version
-filePath = saveEEG(EEGreref, preprocDir, id);
+rerefSavePath = [preprocDir subjID '_chan_v1_reref_bipolar.set'];
+pop_saveset(EEGreref, rerefSavePath);
 
 % save bipolar structure
 bipolarFileName = [preprocDir subjID '_bipolar_referencing_structure.mat'];
@@ -108,12 +97,11 @@ save(bipolarFileName, 'B');
 %% perform artifact detection/removal
 
 % prepare data
-origDataPath = '/Users/Lindsay/Documents/ECoG Database/Sample Data/TS071/PreProcessing/TS071_LV_C01_Ref_AllGoodChans_A00.set';
-EEG = pop_loadset(origDataPath);
+EEG = pop_loadset(rerefSavePath);
 eeglab redraw;
 
-outputDir = '/Users/Lindsay/Documents/ECoG Database/Sample Data/TS071/PreProcessing/C01_Ref_AllGoodChans_A00_Single_Chan_Data/';
-outputStem = 'TS071_LV_C01_Ref_AllGoodChans_A00_';
+outputDir  = [preprocDir 'artifacts/'];
+outputStem = 'TS071_chan_v1_reref_strip_';
 
 % Clean the data for each channel separately. This next function will first
 % split your dataset into multiple data sets containing one channel each.
@@ -167,12 +155,9 @@ chanInds = [1,2,3,20,21,22];
 eegPaths = splitFileList(chanInds);
 
 % Then use same code as Option 1
-mergedEEG = mergeCleanedDatasets(eegPaths, samplesToTrim, markerPath);
+mergeFileList = mergeAllDatasets(eegPaths, samplesToTrim, outputDir, outputStem, markerPath);
 
-% view time points marked for rejection
-mergedEEG = pop_vised(mergedEEG);
-
-% save 
-savePath = [outputDir outputStem 'merged_clean.set'];
-pop_saveset(mergedEEG, savePath);
+% view time points marked for rejection 
+EEG = pop_loadset(mergeFileList{1});
+EEG = pop_vised(EEG);
 
