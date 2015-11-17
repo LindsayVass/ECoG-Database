@@ -2,7 +2,7 @@ function fileList = mergeDatasetsByStrip(eegPaths, samplesToTrim, outputDir, out
 % Given a cell array of paths to clean EEG data sets, merge them back
 % together by creating a new data set for each strip/grid/depth.
 %
-% >> fileList = mergeDatasetsByStrip(eegPaths, samplesToTrim, markerPath)
+% >> fileList = mergeDatasetsByStrip(eegPaths, samplesToTrim, outputDir, outputStem, markerPath)
 %
 % Inputs:
 %   eegPaths: cell array of paths to cleaned EEG data sets
