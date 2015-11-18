@@ -248,10 +248,10 @@ for thisFile = 1:length(mergeFileList)
     [EEG_epoch epochInfo] = epochDataset(EEG, eventLatencies, eventLabels, eStart, eEnd);
     
     % save EEG
-    epochSavePath = [epochDir mergeFileList{thisFile}(1:end-4) '_epoched.set'];
+    epochSavePath = [epochDir EEG_epoch.filename(1:end-4) '_epoched.set'];
     pop_saveset(EEG_epoch, epochSavePath);
     
     % save epoch info
-    epochInfoSavePath = [epochDir mergeFileList{thisFile}(1:end-4) '_epoch_info.mat'];
+    epochInfoSavePath = [epochDir EEG_epoch.filename(1:end-4) '_epoch_info.mat'];
     save(epochInfoSavePath, 'epochInfo');
 end
