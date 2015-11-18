@@ -22,11 +22,24 @@ function EEG = markBadChannels(EEG)
 
 eeglab redraw;
 
-% load vised configuration
-curPath = which('markBadChannels.m');
-tbInd = strfind(curPath, 'ECoG Database/');
-visedPath = [curPath(1:tbInd + 13) 'config/vised_config_marker_select.mat'];
-load(visedPath);
+% setup vised configuration
+VISED_CONFIG                  = visedconfig_obj;
+VISED_CONFIG.marks_y_loc      = 0.8;
+VISED_CONFIG.inter_mark_int   = 0.04;
+VISED_CONFIG.inter_tag_int    = 0.002;
+VISED_CONFIG.marks_col_int    = 0.1;
+VISED_CONFIG.marks_col_alpha  = 0.7;
+VISED_CONFIG.spacing          = 1000;
+VISED_CONFIG.winlength        = 10;
+VISED_CONFIG.dispchans        = 15;
+VISED_CONFIG.command          = 'EEG=ve_update(EEG);EEG.saved = ''no'';EEG=updateChannels(EEG);';
+VISED_CONFIG.butlabel         = 'Update EEG structure';
+VISED_CONFIG.wincolor         = [0.7, 1, 0.9];
+VISED_CONFIG.selectcommand    = {'ve_eegplot(''defdowncom'',gcbf);', 've_eegplot(''defmotioncom'',gcbf);', 've_eegplot(''defupcom'', gcbf);'};
+VISED_CONFIG.altselectcommand = {'ve_edit(''quick_chanflag'',''manual'');', 've_eegplot(''defmotioncom'', gcbf);', ''};
+VISED_CONFIG.extselectcommand = {'ve_edit;', 've_eegplot(''defmotioncom'', gcbf);', ''};
+VISED_CONFIG.keyselectcommand = {'t,ve_eegplot(''topoplot'',gcbf)'; 'r,ve_eegplot(''drawp'',0)'; 'm,ve_edit(''quick_chanflag'',''marker'');'};
+
 
 % initialize marks structure
 if isfield(EEG, 'marks') == 0
