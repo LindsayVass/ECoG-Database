@@ -1,4 +1,4 @@
-%% set up file naming
+%% Set up
 eeglab;
 
 % experiment directory, contains a folder for each patient
@@ -12,7 +12,7 @@ if ~exist(preprocDir, 'dir')
     mkdir(preprocDir);
 end
 
-%% load raw data 
+%% Load raw data 
 
 %%%%%%%%%%%
 % HOUSTON %
@@ -44,7 +44,7 @@ eeglab redraw;
 rawSavePath = [preprocDir subjID '_raw.set'];
 pop_saveset(EEG, rawSavePath);
 
-%% flag electrodes with gross signal artifacts
+%% Flag electrodes with gross signal artifacts
 EEG = pop_loadset(rawSavePath);
 eeglab redraw;
 
@@ -59,7 +59,7 @@ pop_saveset(EEG, chanSavePath);
 % modifications to the list of channels are stored in EEG.chan_history
 disp(EEG.chan_history(end));
 
-%% re-reference the data
+%% Re-reference the data
 EEG = pop_loadset(chanSavePath);
 eeglab redraw;
 
@@ -116,7 +116,7 @@ pop_saveset(EEGreref, rerefSavePath);
 bipolarFileName = [preprocDir subjID '_bipolar_referencing_structure.mat'];
 save(bipolarFileName, 'B');
 
-%% perform artifact detection/removal
+%% Perform artifact detection/removal
 
 % prepare data
 EEG = pop_loadset(rerefSavePath);
@@ -224,3 +224,34 @@ disp(EEG.channel_artifact_history);
 % in EEG.channel_reref_history
 disp(EEG.channel_reref_history);
 
+%% Epoch the data from experimental events
+
+% You will need a vector of latencies (latency in EEG.data samples, not
+% seconds) and a cell array of event labels. Example below.
+eventLatencies = [1234 5592 10975 30004 80761 92004 123456];
+eventLabels    = {'space', 'time', 'space', 'space', 'time', 'time', 'space'};
+
+% Epoch start and end times in seconds (where eventLatencies specified
+% above = time 0)
+eStart = -2;
+eEnd   = 5;
+
+% Where to save epoched data
+epochDir  = [subjDir 'epoched_data/'];
+system(['mkdir ' strrep(subjDir, ' ', '\ ') 'epoched_data/']);
+
+for thisFile = 1:length(mergeFileList)
+    % load merged data
+    EEG = pop_loadset(mergeFileList{thisFile});
+    
+    % epoch data
+    [EEG_epoch epochInfo] = epochDataset(EEG, eventLatencies, eventLabels, eStart, eEnd);
+    
+    % save EEG
+    epochSavePath = [epochDir mergeFileList{thisFile}(1:end-4) '_epoched.set'];
+    pop_saveset(EEG_epoch, epochSavePath);
+    
+    % save epoch info
+    epochInfoSavePath = [epochDir mergeFileList{thisFile}(1:end-4) '_epoch_info.mat'];
+    save(epochInfoSavePath, 'epochInfo');
+end
