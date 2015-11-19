@@ -23,6 +23,7 @@ function EEG = markBadChannels(EEG)
 eeglab redraw;
 
 % setup vised configuration
+global VISED_CONFIG;
 VISED_CONFIG                  = visedconfig_obj;
 VISED_CONFIG.marks_y_loc      = 0.8;
 VISED_CONFIG.inter_mark_int   = 0.04;
