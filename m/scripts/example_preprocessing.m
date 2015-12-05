@@ -144,7 +144,7 @@ numSD     = 5;
 
 % Visualize the flags across channels and epochs, and get total number of
 % flagged epochs for each channel
-[flagsMatrix, flagSummary, channelNames] = visualizeFlags(splitFileList);
+[flagsMatrix, flagSummary] = visualizeFlags(splitFileList);
 
 % The next step is to recombine the data from each individual channel.
 % There are three options for doing this, detailed below. In each case, the
