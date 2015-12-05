@@ -142,6 +142,10 @@ epochSecs = 1;
 numSD     = 5;
 [splitFileList, markerPath, samplesToTrim] = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD);
 
+% Visualize the flags across channels and epochs, and get total number of
+% flagged epochs for each channel
+[flagsMatrix, flagSummary, channelNames] = visualizeFlags(splitFileList);
+
 % The next step is to recombine the data from each individual channel.
 % There are three options for doing this, detailed below. In each case, the
 % merged data will be saved in a folder called 'marked_merged' in
