@@ -158,7 +158,7 @@ numSD     = 5;
 % Note that any time point flagged as bad for one channel will be flagged
 % as bad for ALL channels, so you will probably lose a LOT of data this
 % way.
-mergeFileList = mergeAllDatasets(splitFileList, samplesToTrim, outputDir, outputStem, markerPath);
+mergeFileList = mergeAllDatasets(splitFileList, samplesToTrim, outputDir, outputStem);
 
 % view time points marked for rejection 
 EEG = pop_loadset(mergeFileList{1});
@@ -182,7 +182,7 @@ disp(EEG.channel_reref_history);
 % For this to work, channels on the same strip must have the same string
 % (e.g., LAD1, LAD2, LAD3 all share 'LAD'). Will be saved to a directory
 % within outputDir called 'marked_merged'.
-mergeFileList = mergeDatasetsByStrip(splitFileList, samplesToTrim, outputDir, outputStem, markerPath);
+mergeFileList = mergeDatasetsByStrip(splitFileList, samplesToTrim, outputDir, outputStem);
 
 % view time points marked for rejection (do for each strip by changing the
 % number in fileList{1} below
@@ -210,7 +210,7 @@ chanInds = [1,2,3,20,21,22];
 eegPaths = splitFileList(chanInds);
 
 % Then use same code as Option 1
-mergeFileList = mergeAllDatasets(eegPaths, samplesToTrim, outputDir, outputStem, markerPath);
+mergeFileList = mergeAllDatasets(eegPaths, samplesToTrim, outputDir, outputStem);
 
 % view time points marked for rejection 
 EEG = pop_loadset(mergeFileList{1});
