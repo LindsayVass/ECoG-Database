@@ -145,33 +145,45 @@ for thisEEG = 1:length(EEG)
 end
 
 % Test whether all EEG.reref.scheme are equal
-if ~strcmpi(eqSchemeTestString, '')
-    eqSchemeTest = eval(['isequal(' sprintf(eqSchemeTestString) ')']);
-    if eqSchemeTest
-        mergedEEG.reref.scheme = EEG(1).reref.scheme;
-    else
-        mergedEEG.reref.scheme = 'Mixed - See channel_reref_history';
+if length(EEG) > 1
+    if ~strcmpi(eqSchemeTestString, '')
+        eqSchemeTest = eval(['isequal(' sprintf(eqSchemeTestString) ')']);
+        if eqSchemeTest
+            mergedEEG.reref.scheme = EEG(1).reref.scheme;
+        else
+            mergedEEG.reref.scheme = 'Mixed - See channel_reref_history';
+        end
     end
+else
+    mergedEEG.reref.scheme = EEG(1).reref.scheme;
 end
 
 % Test whether all EEG.reref.date are equal
-if ~strcmpi(eqDateTestString, '')
-    eqDateTest = eval(['isequal(' sprintf(eqDateTestString) ')']);
-    if eqDateTest
-        mergedEEG.reref.date = EEG(1).reref.date;
-    else
-        mergedEEG.reref.date = 'Mixed - See channel_reref_history';
+if length(EEG) > 1
+    if ~strcmpi(eqDateTestString, '')
+        eqDateTest = eval(['isequal(' sprintf(eqDateTestString) ')']);
+        if eqDateTest
+            mergedEEG.reref.date = EEG(1).reref.date;
+        else
+            mergedEEG.reref.date = 'Mixed - See channel_reref_history';
+        end
     end
+else
+    mergedEEG.reref.date = EEG(1).reref.date;
 end
 
 % Test whether all EEG.reref.chan are equal
-if ~strcmpi(eqChanTestString, '')
-    eqChanTest = eval(['isequal(' sprintf(eqChanTestString) ')']);
-    if eqChanTest
-        mergedEEG.reref.chan = EEG(1).reref.chan;
-    else
-        mergedEEG.reref.chan = 'Mixed - See channel_reref_history';
+if length(EEG) > 1
+    if ~strcmpi(eqChanTestString, '')
+        eqChanTest = eval(['isequal(' sprintf(eqChanTestString) ')']);
+        if eqChanTest
+            mergedEEG.reref.chan = EEG(1).reref.chan;
+        else
+            mergedEEG.reref.chan = 'Mixed - See channel_reref_history';
+        end
     end
+else
+    mergedEEG.reref.chan = EEG(1).reref.chan;
 end
 %% convert back to continuous dataset from epoched dataset
 mergedEEG = marks_epochs2continuous(mergedEEG);
