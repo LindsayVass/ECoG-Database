@@ -52,6 +52,7 @@ if isfield(EEG, 'marks')
         markerInd = find(EEG.marks.chan_info(markerFlagInd).flags);
     catch
         markerInd = NaN;
+        markerPath = '';
         warning('Could not identify marker channel based on EEG.marks or EEG.chanlocs.labels. Did not find a flag or channel with label ''marker''.')
     end
 else
