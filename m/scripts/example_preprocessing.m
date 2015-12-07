@@ -249,7 +249,7 @@ for thisFile = 1:length(mergeFileList)
     EEG = pop_loadset(mergeFileList{thisFile});
     
     % epoch data
-    [EEG_epoch epochInfo] = epochDataset(EEG, eventLatencies, eventLabels, eStart, eEnd);
+    [EEG_epoch, epochInfo] = epochDataset(EEG, eventLatencies, eventLabels, eStart, eEnd);
     
     % save EEG
     epochSavePath = [epochDir EEG_epoch.filename(1:end-4) '_epoched.set'];
