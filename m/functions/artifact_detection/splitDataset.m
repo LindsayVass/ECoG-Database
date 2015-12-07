@@ -104,8 +104,11 @@ newEEG.chan_history(histInd).good_chans.electrode_name = thisChanName;
 newEEG.chan_history(histInd).good_chans.electrode_ind = 1;
 newEEG.chan_history(histInd).bad_chans = [];
 
-refInd = find(strcmpi(thisChanName, newEEG.reref.chan.electrode_name));
-newEEG.reref.chan.ref_ind = newEEG.reref.chan.ref_ind(refInd);
+refInd = find(strcmpi(thisChanName, {EEG.reref.chan.electrode_name}));
+newEEG.reref = [];
+newEEG.reref.scheme = EEG.reref.scheme;
+newEEG.reref.date = EEG.reref.date;
+newEEG.reref.chan = EEG.reref.chan(refInd);
 
 % save new dataset
 pop_saveset(newEEG, outputPath);
