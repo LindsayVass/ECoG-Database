@@ -83,13 +83,17 @@ for thisEEG = 1:length(singleChanFileList)
         if thisThresh == 1
             finalEEG = markedEEG;
             markInd = find(strncmp('rejthresh', {markedEEG.marks.time_info.label}, 9));
-            finalEEG.marks.time_info(markInd).color = colors(thisThresh, :);
+            if ~isempty(markInd)
+                finalEEG.marks.time_info(markInd).color = colors(thisThresh, :);
+            end
         else
             % copy marks to finalEEG
             origMarkInd = find(strncmp('rejthresh', {markedEEG.marks.time_info.label}, 9));
             newMarkInd  = length(finalEEG.marks.time_info) + 1;
-            finalEEG.marks.time_info(newMarkInd) = markedEEG.marks.time_info(origMarkInd);
-            finalEEG.marks.time_info(newMarkInd).color = colors(thisThresh, :);
+            if ~isempty(origMarkInd)
+                finalEEG.marks.time_info(newMarkInd) = markedEEG.marks.time_info(origMarkInd);
+                finalEEG.marks.time_info(newMarkInd).color = colors(thisThresh, :);
+            end
         end
         
     end % thisThresh
