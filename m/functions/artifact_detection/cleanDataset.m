@@ -72,7 +72,6 @@ epochedEEG = marks_continuous2epochs(EEG, 'recurrence', epochSecs, 'limits', [0 
 [markedEEG, ind] = pop_eegthresh(epochedEEG, 1, 1, chanLow, chanHigh, 0, epochSecs, 1, 0);
 
 % copy to marks structure
-markedEEG = reject2marks(markedEEG);
 markLabel = ['rejthresh' num2str(numSD)];
 if ~isempty(find(markedEEG.reject.rejthresh));
     for i=1:markedEEG.trials;
