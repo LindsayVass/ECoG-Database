@@ -74,22 +74,35 @@ if createB
         
         stripName = stripList{thisStrip};
         
+        % get the numbers of channels on this strip
+        chanNamesNoNums = cellfun(@(x) x(regexp(x, '[^\d]')), chanNames, 'UniformOutput', false);
+        gridInds = find(strcmpi(chanNamesNoNums, stripName));
+        gridList = chanNames(gridInds);
+        gridNums = cellfun(@(x) str2num(x(regexp(x, '\d'))), gridList, 'UniformOutput', false);
+        gridNums = cat(1, gridNums{:});
+        
         if B.(stripName).Include
             
-            % get grid geometry using GUI
-            geomData = geomGuide(stripList(thisStrip));
+            goodStrip = false;
             
-            % check that geomData structure is valid
-            [dupCheck, elecCheck] = checkGeomData(geomData, stripName, chanNames);
-            
-            if dupCheck == true && elecCheck == true
-                B.(stripName).Geometry = geomData;
-            elseif dupCheck == false
-                error('There are duplicate entries in the supplied geometry data.')
-            elseif elecCheck == false
-                error('The values supplied in the geometry data do not match the values in the list of channel names.')
+            while goodStrip == false
+                
+                % get grid geometry using GUI
+                geomData = geomGuide(stripList(thisStrip), gridNums);
+                
+                % check that geomData structure is valid
+                [dupCheck, elecCheck] = checkGeomData(geomData, stripName, chanNames);
+                
+                if dupCheck == true && elecCheck == true
+                    B.(stripName).Geometry = geomData;
+                    goodStrip = true;
+                elseif dupCheck == false
+                    warndlg('There were duplicate entries in the supplied geometry data. Please try again.')
+                elseif elecCheck == false
+                    warndlg('The values supplied in the geometry data do not match the values in the list of channel names. Try again and make sure you''ve included all channels in the list shown at the left.')
+                end
+                
             end
-            
         end
     end
 end

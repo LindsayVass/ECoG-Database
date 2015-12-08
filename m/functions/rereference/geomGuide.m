@@ -22,7 +22,7 @@ function varargout = geomGuide(varargin)
 
 % Edit the above text to modify the response to help geomGuide
 
-% Last Modified by GUIDE v2.5 05-Nov-2015 16:50:30
+% Last Modified by GUIDE v2.5 07-Dec-2015 15:46:43
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -60,6 +60,9 @@ guidata(hObject, handles);
 
 % Put grid name in text box
 set(handles.gridName, 'String', varargin{1});
+
+% Put channel numbers in list box
+set(handles.channelList, 'String', varargin{2});
 
 % UIWAIT makes geomGuide wait for user response (see UIRESUME)
 uiwait(handles.figure1);
@@ -136,7 +139,7 @@ cols = str2double(get(handles.cols, 'string'));
 initdata = zeros(rows, cols);
 handles.table = uitable('Data', initdata, ...
     'Units', 'characters', ...
-    'Position', [2 2 106 26], ...
+    'Position', [15 0.5 95 29], ...
     'ColumnEditable', logical(ones(1, cols)), ...
     'Tag', 'table');
 % Update handles structure
@@ -145,3 +148,26 @@ guidata(hObject, handles);
 % --- Executes on button press in done
 function done_Callback(hObject, eventdata, handles)
 uiresume(handles.figure1);
+
+
+% --- Executes on selection change in channelList.
+function channelList_Callback(hObject, eventdata, handles)
+% hObject    handle to channelList (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns channelList contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from channelList
+
+
+% --- Executes during object creation, after setting all properties.
+function channelList_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to channelList (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
