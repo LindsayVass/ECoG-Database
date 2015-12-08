@@ -125,31 +125,77 @@ eeglab redraw;
 outputDir  = [preprocDir 'artifact_detection/'];
 outputStem = 'TS071_chan_v1_reref_strip_';
 
-% Clean the data for each channel separately. This next function will first
-% split your dataset into multiple data sets containing one channel each.
-% These are contained in a folder called 'dirty_unepoched', which is
-% created inside outputDir. It will then epoch each channel's data into
-% short consecutive epochs (length = epochSecs). Finally, it will flag any
-% epoch that contains extreme values, defined as a value that exceeds a
-% certain number of standard deviations away from the mean (threshold =
-% numSD). These marked and epoched files will be contained in a folder
-% called 'clean_epoched', also found in outputDir. 
+% Artifact detection works by identifying extreme values in each channel's
+% data. We will calculate the mean and standard deviation of each channel's
+% activity, and then set a threshold for extreme values based on the number
+% of SDs away from the mean. 
+% 
+% For example, if a channel had mean = 100, SD = 10, and threshold of 5
+% SDs, then values < 50 or > 150 would be flagged as extreme.
 %
-% If your data set does not divide evenly by epochSecs, it will pad the
-% data with NaN and return the number of samples to later trim when the
-% data is recombined (samplesToTrim).
+% After identifying the artifacts in each channel's data, we will merge the
+% channels back together and exclude any time points that were flagged for
+% any channel.
+
+% The first step of the process is to split your dataset into multiple data
+% sets containing one channel each. These single channel data sets will be
+% stored in a folder called 'singleChan_unepoched_unmarked', which will be
+% created inside the directory specified by "outputDir".
+[singleChanFileList, markerPath] = splitDataset(EEG, outputDir, outputStem);
+
+% Next, we will epoch each channel's data into short contiguous epochs, the
+% length of which are defined by "epochSecs". It will flag any epoch
+% containing extreme values, defined as a value that exceeds a certain
+% number of standard deviations away from the mean (defined by "numSD").
+% These epoched and marked files will be stored in a subdirectory of
+% "outputDir" named "singleChan_epoched_marked".
+%
+% At this point, you have two options. You can either perform artifact
+% detection at a single threshold, or you can perform it at a range of
+% thresholds. This second option is useful if you want to compare artifact
+% detection across thresholds or want to use different thresholds for
+% different strips/grids/depths. In either case, you will get back a list
+% of the newly created files. If your data set does not divide evenly by
+% "epochSecs", your data will be padded with NaN and will return the number
+% of samples to later trim when the data is recombined ("samplesToTrim").
+
+%%%%%%%%%%%%%%%%%%%%
+% Single Threshold %
+%%%%%%%%%%%%%%%%%%%%
 epochSecs = 1;
 numSD     = 5;
-[splitFileList, markerPath, samplesToTrim] = splitAndCleanDataset(EEG, outputDir, outputStem, epochSecs, numSD);
+[singleChanCleanFileList, samplesToTrim] = cleanDatasetOneThresh(singleChanFileList, outputDir, outputStem, epochSecs, numSD);
 
 % Visualize the flags across channels and epochs, and get total number of
-% flagged epochs for each channel
-[flagsMatrix, flagSummary] = visualizeFlags(splitFileList);
+% flagged epochs for each channel. 
+[flagsMatrix, flagSummary] = visualizeFlags(singleChanCleanFileList, numSD);
 
-% The next step is to recombine the data from each individual channel.
-% There are three options for doing this, detailed below. In each case, the
-% merged data will be saved in a folder called 'marked_merged' in
-% outputDir.
+%%%%%%%%%%%%%%%%%%%%%%%
+% Multiple Thresholds %
+%%%%%%%%%%%%%%%%%%%%%%%
+epochSecs = 1;
+numSD     = 5:10;
+[singleChanCleanFileList, samplesToTrim] = cleanDatasetMultiThresh(singleChanFileList, outputDir, outputStem, epochSecs, numSD);
+
+% Visualize the flags across channels and epochs, and get total number of
+% flagged epochs for each channel. Will be run for each threshold in numSD.
+allFlagSummary = cell(length(numSD), 1);
+for thisThresh = 1:length(numSD)
+    [flagsMatrix, flagSummary] = visualizeFlags(singleChanCleanFileList, numSD(thisThresh));
+    allFlagSummary(thisThresh) = {flagSummary};
+end
+
+
+
+
+
+
+
+
+
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % OPTION 1: Recombine all channels %
