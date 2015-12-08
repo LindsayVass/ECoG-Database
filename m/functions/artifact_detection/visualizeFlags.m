@@ -1,11 +1,13 @@
-function [flagsMatrix, flagSummary] = visualizeFlags(splitFileList)
-% Examine the prevalence of flagged data points for all channels.
+function [flagsMatrix, flagSummary] = visualizeFlags(singleChanCleanFileList, threshold)
+% Examine the prevalence of flagged data points for all channels for a
+% specified threshold.
 %
-% >> flagsMatrix = visualizeFlags(splitFileList)
+% >> flagsMatrix = visualizeFlags(singleChanCleanFileList, threshold)
 %
 % Input:
 %   splitFileList: cell array of paths to the single-channel flagged
 %       datasets (output by splitAndCleanDataset.m)
+%   threshold: threshold in SD used for artifact detection
 %
 % Outputs:
 %   flagsMatrix: channels x time points matrix of flag data
@@ -13,12 +15,12 @@ function [flagsMatrix, flagSummary] = visualizeFlags(splitFileList)
 %       for each channel, arranged in descending order
 
 % get flag data and channel name for each file in the list
-channelNames = cell(length(splitFileList), 1);
-for thisFile = 1:length(splitFileList)
-    EEG = pop_loadset(splitFileList(thisFile));
+channelNames = cell(length(singleChanCleanFileList), 1);
+for thisFile = 1:length(singleChanCleanFileList)
+    EEG = pop_loadset(singleChanCleanFileList(thisFile));
     channelNames{thisFile} = EEG.chanlocs(1).labels;
     
-    flagInd = find(strcmpi('rejthresh', {EEG.marks.time_info.label}));
+    flagInd = find(strcmpi(['rejthresh' num2str(threshold)], {EEG.marks.time_info.label}));
     if isempty(flagInd)
         warning(['No flags found for ' channelNames{thisFile}]);
         if thisFile == 1
