@@ -94,6 +94,7 @@ for thisEEG = 1:length(singleChanFileList)
                 finalEEG.marks.time_info(newMarkInd) = markedEEG.marks.time_info(origMarkInd);
                 finalEEG.marks.time_info(newMarkInd).color = colors(thisThresh, :);
             end
+            finalEEG.artifact_history(end + 1) = markedEEG.artifact_history(1);
         end
         
     end % thisThresh
