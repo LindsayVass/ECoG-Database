@@ -40,7 +40,7 @@ end
 % plot flag data
 figure;
 imagesc(flagsMatrix);
-title('Flagged epochs for all channels and time points (Red = Bad)');
+title(['Flagged epochs for all channels and time points (Red = Bad; Thresh = ' num2str(threshold) ')']);
 xlabel('Epoch Index');
 ylabel('Channel Index');
 
