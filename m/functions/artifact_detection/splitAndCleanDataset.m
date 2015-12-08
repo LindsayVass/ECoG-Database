@@ -50,14 +50,12 @@ if strcmpi(outputDir(end), '/') == 0
     outputDir = [outputDir '/'];
 end
 
-outputDirOrig = [outputDir 'dirty_unepoched/'];
-
 % split data set into one for each channel
-[splitLog, markerPath] = splitDataset(EEG, outputDirOrig, outputStem);
+[splitLog, markerPath] = splitDataset(EEG, outputDir, outputStem);
 
 % save splitLog
 fileList = splitLog;
-save([outputDirOrig 'fileList.mat'], 'fileList');
+save([outputDir 'fileList.mat'], 'fileList');
 clear fileList;
 
 % prep output dir
