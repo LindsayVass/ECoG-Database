@@ -73,6 +73,22 @@ epochedEEG = marks_continuous2epochs(EEG, 'recurrence', epochSecs, 'limits', [0 
 
 % copy to marks structure
 markedEEG = reject2marks(markedEEG);
+markLabel = ['rejthresh' num2str(numSD)];
+if ~isempty(find(markedEEG.reject.rejthresh));
+    for i=1:markedEEG.trials;
+        if markedEEG.reject.rejthresh(i);
+            tmpflags(1,:,i)=ones(1,markedEEG.pnts,1);
+        else
+            tmpflags(1,:,i)=zeros(1,markedEEG.pnts,1);
+        end
+    end
+    if find(strcmp(markLabel,{markedEEG.marks.time_info.label}));
+        disp([markLabel ' mark type already exists... replacing it.']);
+        markedEEG.marks=marks_remove_label(markedEEG.marks,'time_info', markLabel);
+    end
+    markedEEG.marks = marks_add_label(markedEEG.marks,'time_info', ...
+        {markLabel,markedEEG.reject.rejthreshcol,tmpflags});
+end
 
 % update channelStats
 channelStats.NumBadEpochs = length(ind);
