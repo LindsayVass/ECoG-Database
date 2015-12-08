@@ -34,6 +34,11 @@ end
 
 % create the subdirectory
 outputSubDir = [outputDir 'singleChan_unepoched_unmarked/'];
+if ~exist(outputSubDir, 'dir')
+    outputSubDirNoSpace = strrep(outputSubDir, ' ', '\ ');
+    system(['mkdir ' outputSubDirNoSpace]);
+end
+
 
 % check that outputStem ends with '_'
 if strcmpi(outputStem(end), '_') == 0
