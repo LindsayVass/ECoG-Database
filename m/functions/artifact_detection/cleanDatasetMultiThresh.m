@@ -13,7 +13,7 @@ function [singleChanCleanFileList, samplesToTrim] = cleanDatasetMultiThresh(sing
 %       unepoched unmarked data sets created by "splitDataset.m"
 %   outputDir: string containing the path to the artifact detection output
 %       directory; this function will create a subdirectory within it
-%       called 'singleChan_epoched_marked' to hold the output data
+%       called 'singleChan_epoched_marked_multiThresh' to hold the output data
 %   outputStem: string containing the stem for file naming; the channel
 %       name will be appended to the stem (e.g., stem = 'TS071' will
 %       produce files like 'TS071_LH1.set', 'TS071_LH2.set')
@@ -51,7 +51,7 @@ if ~exist(outputDir, 'dir')
 end
 
 % create the subdirectory
-outputSubDir = [outputDir 'singleChan_epoched_marked/'];
+outputSubDir = [outputDir 'singleChan_epoched_marked_multiThresh/'];
 if ~exist(outputSubDir, 'dir')
     outputSubDirNoSpace = strrep(outputSubDir, ' ', '\ ');
     system(['mkdir ' outputSubDirNoSpace]);
