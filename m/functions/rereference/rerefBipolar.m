@@ -127,6 +127,23 @@ for thisStrip = 1:length(stripList)
         % get this grid's geometry
         thisGeom = B.(stripName).Geometry;
         
+        % get the list of bad channels
+        badChans = [EEG.marks.chan_info.flags];
+        badChans = find(sum(badChans, 2));
+        badChanNames = chanNames(badChans);
+        badChanNamesNoNums = cellfun(@(x) x(regexp(x, '[^\d]')), badChanNames, 'UniformOutput', false);
+        badInds = find(strcmpi(badChanNamesNoNums, stripName));
+        badChanNames = badChanNames(badInds);
+        
+        % zero out the bad channels in the geometry
+        for thisBadChan = 1:length(badChanNames)
+            thisName = badChanNames(thisBadChan);
+            thisNum  = cellfun(@(x) str2num(x(regexp(x, '\d'))), thisName, 'UniformOutput', false);
+            thisNum  = thisNum{1};
+            geomInd  = find(thisGeom == thisNum);
+            thisGeom(geomInd) = 0;
+        end
+        
         % find indices of adjacent electrodes
         adjInds = findAdjacentElectrodes(thisGeom);
         
