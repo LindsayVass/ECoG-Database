@@ -175,3 +175,7 @@ for thisStrip = 1:length(stripList)
         end
     end
 end
+
+% update EEGreref.marks
+EEGreref.marks = marks_init(size(EEGreref.data));
+
