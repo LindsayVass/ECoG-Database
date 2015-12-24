@@ -1,4 +1,4 @@
-function fileList = mergeAllDatasets(eegPaths, samplesToTrim, outputDir, outputStem, markerPath)
+function fileList = mergeAllDatasets(eegPaths, outputDir, outputStem, markerPath)
 % Given a cell array of paths to clean EEG data sets, merge them back
 % together by creating a new data set for each strip/grid/depth.
 %
@@ -17,12 +17,7 @@ function fileList = mergeAllDatasets(eegPaths, samplesToTrim, outputDir, outputS
 %       appended to each new data set
 %
 % Output:
-%   fileList: cell array of paths to the newly created data sets
-
-%% load data
-for thisEEG = 1:length(eegPaths)
-    EEG(thisEEG) = pop_loadset(eegPaths{thisEEG});
-end
+%   fileList: cell array of path to the newly created data set
 
 %% prep output
 % make the output directory if it doesn't exist
@@ -39,25 +34,25 @@ if strcmpi(outputStem(end), '_') == 0
     outputStem = [outputStem '_'];
 end
 
-outputDirMerged = [outputDir 'marked_merged/'];
+outputDirMerged = [outputDir 'multiChan_continuous_marked/'];
 
 if ~exist('outputDirNoSpace', 'var')
     outputDirNoSpace = strrep(outputDir, ' ', '\ ');
 end
-outputDirMergedNoSpace = [outputDirNoSpace 'marked_merged/'];
+outputDirMergedNoSpace = [outputDirNoSpace 'multiChan_continuous_marked/'];
 system(['mkdir ' outputDirMergedNoSpace]);
 
 %% merge data
 if exist('markerPath', 'var')
-    mergedEEG = mergeCleanedDatasets(thisEEGList, samplesToTrim, markerPath);
+    mergedEEG = mergeCleanedDatasets(eegPaths, markerPath);
 else
-    mergedEEG = mergeCleanedDatasets(thisEEGList, samplesToTrim);
+    mergedEEG = mergeCleanedDatasets(eegPaths);
 end
 
 % save
-savePath = [outputDirMerged outputStem stripNames{thisStrip} '.set'];
+savePath = [outputDirMerged outputStem '.set'];
 pop_saveset(mergedEEG, savePath);
-fileList{thisStrip} = savePath;
+fileList = savePath;
 
 % save file list
 save([outputDirMerged 'fileList.mat'], 'fileList');

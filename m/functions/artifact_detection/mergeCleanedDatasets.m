@@ -1,14 +1,13 @@
-function mergedEEG = mergeCleanedDatasets(eegPaths, samplesToTrim, markerPath)
+function mergedEEG = mergeCleanedDatasets(eegPaths, numSD, markerPath)
 % Given a cell array of paths to clean EEG data sets, load all data sets,
 % and merge them together, keeping only time points which are clean across
 % all data sets.
 %
-% >> mergedEEG = mergeCleanedDatasets(eegPaths, samplesToTrim, markerPath)
+% >> mergedEEG = mergeCleanedDatasets(eegPaths, numSD, markerPath)
 %
 % Inputs:
 %   eegPaths: cell array of paths to cleaned EEG data sets
-%   samplesToTrim: number of samples to trim from the dataset (i.e., the
-%       number of NaNs the data set was padded with)
+%   numSD: threshold in SD to use
 %
 % Optional Input:
 %   markerPath: path to the marker channel data set
@@ -42,9 +41,9 @@ mergedEEG.nbchan = length(EEG);
 mergedEEG.data = zeros(length(EEG), size(EEG(1).data, 2), size(EEG(1).data, 3));
 
 % copy data and channel labels
+mergedEEG.data = cat(1, EEG(1:end).data);
+[mergedEEG.chanlocs(1:length(EEG))] = deal([EEG(1:length(EEG)).chanlocs]);
 for thisEEG = 1:length(EEG)
-    mergedEEG.data(thisEEG, :, :) = EEG(thisEEG).data;
-    mergedEEG.chanlocs(thisEEG) = EEG(thisEEG).chanlocs;
     mergedEEG.chanlocs(thisEEG).index = thisEEG;
 end
 
@@ -68,8 +67,12 @@ end
 
 %% merge rejected epochs and marks
 newRej = zeros(length(EEG), size(EEG(1).data, 3));
+rejLabel = ['rejthresh' num2str(numSD)];
 for thisEEG = 1:length(EEG)
-    newRej(thisEEG, :) = EEG(thisEEG).reject.rejthresh;
+    rejInd = find(strcmpi({EEG(thisEEG).marks.time_info.label}, rejLabel));
+    if ~isempty(rejInd)
+        newRej(thisEEG, :) = squeeze(EEG(thisEEG).marks.time_info(rejInd).flags(1, 1, :));
+    end
 end
 newRej = sum(newRej, 1);
 newRej(newRej > 1) = 1;
@@ -89,7 +92,10 @@ mergedEEG.artifact_history.type                       = 'Merged Artifacts';
 mergedEEG.artifact_history.artifacts.Mean             = NaN;
 mergedEEG.artifact_history.artifacts.SD               = NaN;
 if isfield(EEG(1), 'artifact_history')
-    mergedEEG.artifact_history.artifacts.EpochSecs        = EEG(1).artifact_history.artifacts.EpochSecs;
+    tmpStruct = [EEG(1).artifact_history.artifacts]; 
+    tmpThresh = [tmpStruct.ThresholdSD];
+    artInd = find(tmpThresh == numSD);
+    mergedEEG.artifact_history.artifacts.EpochSecs        = EEG(1).artifact_history.artifacts(artInd).EpochSecs;
 else
     mergedEEG.artifact_history.artifacts.EpochSecs = NaN;
 end
@@ -104,10 +110,10 @@ for thisEEG = 1:length(EEG)
         mergedEEG.channel_artifact_history(thisEEG).electrode_name = EEG(thisEEG).chanlocs(1).labels;
         mergedEEG.channel_artifact_history(thisEEG).electrode_ind = thisEEG;
         
-        if ~isfield(mergedEEG, 'channel_artifact_history')
-        else
-            mergedEEG.channel_artifact_history(thisEEG).artifact_history = EEG(thisEEG).artifact_history;
-        end
+        tmpStruct = [EEG(thisEEG).artifact_history.artifacts];
+        tmpThresh = [tmpStruct.ThresholdSD];
+        artInd = find(tmpThresh == numSD);
+        mergedEEG.channel_artifact_history(thisEEG).artifact_history = EEG(thisEEG).artifact_history(artInd);
     end
 end
 
@@ -225,18 +231,26 @@ if exist('markerPath', 'var')
 end
 
 %% trim NaN padding
-% make sure there's no real data where we're expecting NaNs
-if samplesToTrim > 0
-    beginTrim = size(mergedEEG.data, 2) - samplesToTrim + 1;
-    if any(~isnan(mergedEEG.data(:, beginTrim:end)))
-        error('Data to be trimmed contains real values, not just NaN.')
+% find NaNs
+[~, col] = find(isnan(mergedEEG.data));
+
+
+if ~isempty(col)
+    % check that all channels have NaNs at the same time points
+    ctCol = crosstab(col);
+    if any(ctCol ~= size(mergedEEG.data, 1))
+        error('Channels are padded with different numbers of NaNs.')
     end
-    mergedEEG.data(:, beginTrim:end) = [];
+    
+    % trim the NaNs
+    nanCols = unique(col);
+    mergedEEG.data(:, nanCols) = [];
     mergedEEG.pnts = size(mergedEEG.data, 2);
     mergedEEG = eeg_checkset(mergedEEG);
     for thisFlag = 1:length(mergedEEG.marks.time_info)
-        mergedEEG.marks.time_info(thisFlag).flags(beginTrim:end) = [];
+        mergedEEG.marks.time_info(thisFlag).flags(nanCols) = [];
     end
+
 end
 
 %% update struct

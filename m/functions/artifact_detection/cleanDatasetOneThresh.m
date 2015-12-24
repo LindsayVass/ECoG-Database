@@ -1,11 +1,11 @@
-function [singleChanCleanFileList, samplesToTrim] = cleanDatasetOneThresh(singleChanFileList, outputDir, outputStem, epochSecs, numSD)
+function [singleChanCleanFileList] = cleanDatasetOneThresh(singleChanFileList, outputDir, outputStem, epochSecs, numSD)
 % Take a list of paths to single channel unepoched unmarked datasets
 % (singleChanFileList) and clean each channel's data. Each channel's data
 % will be split into contiguous epochs (length = epochSecs) and epochs
 % containing extreme values (>numSD above or below the mean for that
 % channel) will be flagged as bad.
 %
-% >> [singleChanCleanFileList, samplesToTrim] = cleanDatasetOneThresh(singleChanFileList, outputDir, outputStem, epochSecs, numSD)
+% >> [singleChanCleanFileList] = cleanDatasetOneThresh(singleChanFileList, outputDir, outputStem, epochSecs, numSD)
 %
 % Inputs:
 %   singleChanFileList: cell array containing paths to the single channel
@@ -27,9 +27,6 @@ function [singleChanCleanFileList, samplesToTrim] = cleanDatasetOneThresh(single
 % Outputs:
 %   singleChanCleanFileList: cell array of strings containing the path to
 %       each of the newly created datasets
-%   samplesToTrim: if the data set does not divide evenly into epochs of
-%       length epochSecs, it will be padded with NaN; this value indicates
-%       how many samples to trim later to return it to the original size 
 
 if nargin < 5
     numSD = 5;
@@ -71,7 +68,7 @@ for thisEEG = 1:length(singleChanFileList)
     EEG = pop_loadset(singleChanFileList{thisEEG});
     
     % clean
-    [~, markedEEG, samplesToTrim] = cleanDataset(EEG, epochSecs, numSD);
+    [~, markedEEG, ~] = cleanDataset(EEG, epochSecs, numSD);
     
     % save
     outName = [outputSubDir outputStem EEG.chanlocs(1).labels '_epoched_marked.set'];

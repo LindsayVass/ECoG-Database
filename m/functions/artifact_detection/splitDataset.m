@@ -8,7 +8,7 @@ function [fileList, markerPath] = splitDataset(EEG, outputDir, outputStem)
 %   EEG: EEGLAB struct
 %   outputDir: string containing the path to the artifact detection folder
 %       (will be created it if does not exist); this function will create a
-%       subdirectory called 'singleChan_unepoched_marked' to store the new
+%       subdirectory called 'singleChan_continuous_marked' to store the new
 %       data sets
 %   outputStem: string containing a stem for the filename for each new
 %       dataset; the channel name will be appended to the end of the stem;
@@ -33,7 +33,7 @@ if ~exist(outputDir, 'dir')
 end
 
 % create the subdirectory
-outputSubDir = [outputDir 'singleChan_unepoched_unmarked/'];
+outputSubDir = [outputDir 'singleChan_continuous_unmarked/'];
 if ~exist(outputSubDir, 'dir')
     outputSubDirNoSpace = strrep(outputSubDir, ' ', '\ ');
     system(['mkdir ' outputSubDirNoSpace]);

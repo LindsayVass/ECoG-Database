@@ -1,4 +1,4 @@
-function [singleChanCleanFileList, samplesToTrim] = cleanDatasetMultiThresh(singleChanFileList, outputDir, outputStem, epochSecs, numSD)
+function [singleChanCleanFileList] = cleanDatasetMultiThresh(singleChanFileList, outputDir, outputStem, epochSecs, numSD)
 % Take a list of paths to single channel unepoched unmarked datasets
 % (singleChanFileList) and clean each channel's data. Each channel's data
 % will be split into contiguous epochs (length = epochSecs) and epochs
@@ -6,7 +6,7 @@ function [singleChanCleanFileList, samplesToTrim] = cleanDatasetMultiThresh(sing
 % channel) will be flagged as bad. This function will perform artifact
 % detection at a range of thresholds specified by numSD.
 %
-% >> [singleChanCleanFileList, samplesToTrim] = cleanDatasetMultiThresh(singleChanFileList, outputDir, outputStem, epochSecs, numSD)
+% >> [singleChanCleanFileList] = cleanDatasetMultiThresh(singleChanFileList, outputDir, outputStem, epochSecs, numSD)
 %
 % Inputs:
 %   singleChanFileList: cell array containing paths to the single channel
@@ -28,9 +28,6 @@ function [singleChanCleanFileList, samplesToTrim] = cleanDatasetMultiThresh(sing
 % Outputs:
 %   singleChanCleanFileList: cell array of strings containing the path to
 %       each of the newly created datasets
-%   samplesToTrim: if the data set does not divide evenly into epochs of
-%       length epochSecs, it will be padded with NaN; this value indicates
-%       how many samples to trim later to return it to the original size
 
 if nargin < 5
     numSD = [5 6 7 8 9 10];
