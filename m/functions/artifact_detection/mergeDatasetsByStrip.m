@@ -1,11 +1,12 @@
-function fileList = mergeDatasetsByStrip(eegPaths, outputDir, outputStem, markerPath)
+function fileList = mergeDatasetsByStrip(eegPaths, numSD, outputDir, outputStem, markerPath)
 % Given a cell array of paths to clean EEG data sets, merge them back
 % together by creating a new data set for each strip/grid/depth.
 %
-% >> fileList = mergeDatasetsByStrip(eegPaths, samplesToTrim, outputDir, outputStem, markerPath)
+% >> fileList = mergeDatasetsByStrip(eegPaths, numSD, outputDir, outputStem, markerPath)
 %
 % Inputs:
 %   eegPaths: cell array of paths to cleaned EEG data sets
+%   numSD: threshold in SD to use
 %   outputDir: directory to save newly created merged data sets
 %   outputStem: filename stem to use for newly created data sets; the strip
 %       name will be appended to this stem
@@ -62,9 +63,9 @@ for thisStrip = 1:length(stripNames)
     thisEEGList = eegPaths(stripInd);
     
     if exist('markerPath', 'var')
-        mergedEEG = mergeCleanedDatasets(thisEEGList, markerPath);
+        mergedEEG = mergeCleanedDatasets(thisEEGList, numSD, markerPath);
     else
-        mergedEEG = mergeCleanedDatasets(thisEEGList);
+        mergedEEG = mergeCleanedDatasets(thisEEGList, numSD);
     end
     
     % save
