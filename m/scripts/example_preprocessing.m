@@ -116,7 +116,7 @@ pop_saveset(EEGreref, rerefSavePath);
 bipolarFileName = [preprocDir subjID '_bipolar_referencing_structure.mat'];
 save(bipolarFileName, 'B');
 
-%% Perform artifact detection/removal
+%% Detect artifacts in each channel
 
 % prepare data
 EEG = pop_loadset(rerefSavePath);
@@ -155,16 +155,14 @@ outputStem = 'TS071_chan_v1_reref_strip_';
 % thresholds. This second option is useful if you want to compare artifact
 % detection across thresholds or want to use different thresholds for
 % different strips/grids/depths. In either case, you will get back a list
-% of the newly created files. If your data set does not divide evenly by
-% "epochSecs", your data will be padded with NaN and will return the number
-% of samples to later trim when the data is recombined ("samplesToTrim").
+% of the newly created files. 
 
 %%%%%%%%%%%%%%%%%%%%
 % Single Threshold %
 %%%%%%%%%%%%%%%%%%%%
 epochSecs = 1;
 numSD     = 5;
-[singleChanCleanFileList, samplesToTrim] = cleanDatasetOneThresh(singleChanFileList, outputDir, outputStem, epochSecs, numSD);
+[singleChanCleanFileList] = cleanDatasetOneThresh(singleChanFileList, outputDir, outputStem, epochSecs, numSD);
 
 % Visualize the flags across channels and epochs, and get total number of
 % flagged epochs for each channel. 
@@ -175,27 +173,17 @@ numSD     = 5;
 %%%%%%%%%%%%%%%%%%%%%%%
 epochSecs = 1;
 numSD     = 5:10;
-[singleChanCleanFileList, samplesToTrim] = cleanDatasetMultiThresh(singleChanFileList, outputDir, outputStem, epochSecs, numSD);
+[singleChanCleanFileList] = cleanDatasetMultiThresh(singleChanFileList, outputDir, outputStem, epochSecs, numSD);
 
-% Visualize the flags across channels and epochs, and get total number of
-% flagged epochs for each channel. Will be run for each threshold in numSD.
-allFlagSummary = cell(length(numSD), 1);
-for thisThresh = 1:length(numSD)
-    [flagsMatrix, flagSummary] = visualizeFlags(singleChanCleanFileList, numSD(thisThresh));
-    allFlagSummary(thisThresh) = {flagSummary};
-end
+% Visualize all flags in scrolling EEG plot
+mergedEEG = visualizeMultiThreshold(singleChanCleanFileList, numSD);
 
+% Update numSD to the threshold you think does the best job of cleaning the
+% data (i.e., removes egregiously bad time points without removing too many
+% "good" time points)
+numSD = 7;
 
-
-
-
-
-
-
-
-
-
-
+%% Recombine single channel data
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % OPTION 1: Recombine all channels %
@@ -204,23 +192,7 @@ end
 % Note that any time point flagged as bad for one channel will be flagged
 % as bad for ALL channels, so you will probably lose a LOT of data this
 % way.
-mergeFileList = mergeAllDatasets(splitFileList, samplesToTrim, outputDir, outputStem);
-
-% view time points marked for rejection 
-EEG = pop_loadset(mergeFileList{1});
-EEG = pop_vised(EEG);
-
-% details about the artifact removal are stored in EEG.artifact_history
-disp(EEG.artifact_history);
-disp(EEG.artifact_history.artifacts.PercentBadEpochs);
-
-% details about artifacts for each individual channel are stored in
-% EEG.channel_artifact_history
-disp(EEG.channel_artifact_history);
-
-% details about each individual channel's re-referencing scheme are stored
-% in EEG.channel_reref_history
-disp(EEG.channel_reref_history);
+mergeFileList = mergeAllDatasets(singleChanCleanFileList, numSD, outputDir, outputStem);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % OPTION 2: Recombine channels on the same strip/grid/depth %
@@ -228,24 +200,7 @@ disp(EEG.channel_reref_history);
 % For this to work, channels on the same strip must have the same string
 % (e.g., LAD1, LAD2, LAD3 all share 'LAD'). Will be saved to a directory
 % within outputDir called 'marked_merged'.
-mergeFileList = mergeDatasetsByStrip(splitFileList, samplesToTrim, outputDir, outputStem);
-
-% view time points marked for rejection (do for each strip by changing the
-% number in fileList{1} below
-EEG = pop_loadset(mergeFileList{1});
-EEG = pop_vised(EEG);
-
-% details about the artifact removal are stored in EEG.artifact_history
-disp(EEG.artifact_history);
-disp(EEG.artifact_history.artifacts.PercentBadEpochs);
-
-% details about artifacts for each individual channel are stored in
-% EEG.channel_artifact_history
-disp(EEG.channel_artifact_history);
-
-% details about each individual channel's re-referencing scheme are stored
-% in EEG.channel_reref_history
-disp(EEG.channel_reref_history);
+mergeFileList = mergeDatasetsByStrip(singleChanCleanFileList, numSD, outputDir, outputStem);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % OPTION 3: Recombine custom channels %
@@ -253,10 +208,12 @@ disp(EEG.channel_reref_history);
 % First, create a cell array of paths to each of the datasets you want to
 % combine, e.g...
 chanInds = [1,2,3,20,21,22];
-eegPaths = splitFileList(chanInds);
+eegPaths = singleChanCleanFileList(chanInds);
 
 % Then use same code as Option 1
-mergeFileList = mergeAllDatasets(eegPaths, samplesToTrim, outputDir, outputStem);
+mergeFileList = mergeAllDatasets(singleChanCleanFileList, numSD, outputDir, outputStem);
+
+%% Visualize the merged data
 
 % view time points marked for rejection 
 EEG = pop_loadset(mergeFileList{1});
